@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista Motoboys | Regalo Pizzeria</title>
+
+    <!-- Firebase SDKs (necessário para sincronização em tempo real) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js">
+    </script>
+
     <style>
         :root {
             --bg-primary: #0f1a14;
@@ -30,7 +37,11 @@
             --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             background: var(--bg-primary);
@@ -56,11 +67,41 @@
             pointer-events: none;
             z-index: 0;
             background-image:
-                linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px);
+                linear-gradient(rgba(255, 255, 255, 0.012) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
             background-size: 48px 48px;
             mask-image: radial-gradient(ellipse at center, black 40%, transparent 75%);
             -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 75%);
+        }
+
+        /* Indicador de status da conexão */
+        .connection-status {
+            position: fixed;
+            top: 12px;
+            right: 16px;
+            z-index: 2000;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            pointer-events: none;
+        }
+        .connection-status .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #e74c3c;
+            transition: background 0.3s;
+        }
+        .connection-status.online .dot {
+            background: #2ecc71;
+            box-shadow: 0 0 6px var(--accent-glow);
         }
 
         /* ── Tela de senha (loading) ── */
@@ -88,12 +129,18 @@
             width: 90%;
             max-width: 400px;
             text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
             animation: fadeInUp 0.5s ease;
         }
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         .password-card .logo-icon {
             display: flex;
@@ -106,7 +153,11 @@
             box-shadow: 0 6px 18px var(--accent-glow);
             margin: 0 auto 20px;
         }
-        .password-card .logo-icon svg { width: 38px; height: 38px; fill: #fff; }
+        .password-card .logo-icon svg {
+            width: 38px;
+            height: 38px;
+            fill: #fff;
+        }
         .password-card h2 {
             font-size: 1.6rem;
             font-weight: 700;
@@ -132,7 +183,10 @@
             text-align: center;
             letter-spacing: 2px;
         }
-        .password-card input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(46,204,113,0.15); }
+        .password-card input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.15);
+        }
         .password-card .btn-access {
             width: 100%;
             padding: 12px;
@@ -145,7 +199,10 @@
             color: #0a1a10;
             transition: all var(--transition);
         }
-        .password-card .btn-access:hover { background: #3ddb7e; transform: translateY(-1px); }
+        .password-card .btn-access:hover {
+            background: #3ddb7e;
+            transform: translateY(-1px);
+        }
         .password-card .error-msg {
             color: var(--red-light);
             font-size: 0.8rem;
@@ -153,7 +210,7 @@
             min-height: 20px;
         }
 
-        /* ── Conteúdo principal (exibido após senha) ── */
+        /* ── Conteúdo principal ── */
         .container {
             width: 100%;
             max-width: 960px;
@@ -161,7 +218,6 @@
             position: relative;
             z-index: 1;
         }
-
         .header {
             display: flex;
             align-items: flex-end;
@@ -188,8 +244,16 @@
             box-shadow: 0 4px 12px var(--accent-glow);
             flex-shrink: 0;
         }
-        .logo .logo-icon svg { width: 34px; height: 34px; fill: #fff; }
-        .logo-text { display: flex; flex-direction: column; margin-left: 4px; }
+        .logo .logo-icon svg {
+            width: 34px;
+            height: 34px;
+            fill: #fff;
+        }
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            margin-left: 4px;
+        }
         .logo-main {
             font-size: 2rem;
             font-weight: 800;
@@ -204,7 +268,6 @@
             letter-spacing: 2.5px;
             text-transform: uppercase;
         }
-
         .lock-container {
             position: relative;
             margin-left: 12px;
@@ -220,7 +283,9 @@
             border: none;
             color: var(--text-primary);
         }
-        .lock-icon:hover { transform: scale(1.1); }
+        .lock-icon:hover {
+            transform: scale(1.1);
+        }
         .lock-popover {
             position: absolute;
             top: 100%;
@@ -235,7 +300,9 @@
             box-shadow: var(--shadow-card);
             min-width: 220px;
         }
-        .lock-popover.active { display: block; }
+        .lock-popover.active {
+            display: block;
+        }
         .lock-popover input {
             width: 100%;
             padding: 6px 8px;
@@ -248,7 +315,9 @@
             outline: none;
             margin-bottom: 8px;
         }
-        .lock-popover input:focus { border-color: var(--accent); }
+        .lock-popover input:focus {
+            border-color: var(--accent);
+        }
         .lock-popover .btn-sm {
             padding: 6px 12px;
             font-size: 0.78rem;
@@ -260,7 +329,9 @@
             color: #0a1a10;
             width: 100%;
         }
-        .lock-popover .btn-sm:hover { background: #3ddb7e; }
+        .lock-popover .btn-sm:hover {
+            background: #3ddb7e;
+        }
         .logout-link {
             display: block;
             text-align: center;
@@ -269,7 +340,9 @@
             font-size: 0.7rem;
             cursor: pointer;
         }
-        .logout-link:hover { color: var(--red-light); }
+        .logout-link:hover {
+            color: var(--red-light);
+        }
 
         .main-card {
             background: var(--bg-card);
@@ -321,7 +394,9 @@
             min-width: 200px;
             flex: 1;
         }
-        .input-add::placeholder { color: var(--text-muted); }
+        .input-add::placeholder {
+            color: var(--text-muted);
+        }
         .input-add:focus {
             border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.12);
@@ -344,13 +419,18 @@
             color: #0a1a10;
             box-shadow: var(--shadow-btn);
         }
-        .btn-primary:hover { background: #3ddb7e; transform: translateY(-1px); }
+        .btn-primary:hover {
+            background: #3ddb7e;
+            transform: translateY(-1px);
+        }
         .btn-outline {
             background: transparent;
             border: 1px solid var(--border);
             color: var(--text-primary);
         }
-        .btn-outline:hover { border-color: var(--accent); }
+        .btn-outline:hover {
+            border-color: var(--accent);
+        }
         .btn-danger-text {
             background: transparent;
             border: 1px solid transparent;
@@ -360,7 +440,10 @@
             cursor: pointer;
             border-radius: 5px;
         }
-        .btn-danger-text:hover { color: var(--red-light); background: rgba(231,76,60,0.1); }
+        .btn-danger-text:hover {
+            color: var(--red-light);
+            background: rgba(231, 76, 60, 0.1);
+        }
 
         .table-wrapper {
             overflow-x: auto;
@@ -382,19 +465,25 @@
             text-transform: uppercase;
             letter-spacing: 0.6px;
             color: var(--text-muted);
-            background: rgba(0,0,0,0.25);
+            background: rgba(0, 0, 0, 0.25);
             border-bottom: 1px solid var(--border);
         }
         table tbody td {
             padding: 10px 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
             vertical-align: middle;
             color: #ffffff;
             transition: background var(--transition);
         }
-        table tbody tr { transition: background var(--transition); }
-        table tbody tr:hover { background: rgba(46,204,113,0.04); }
-        table tbody tr:last-child td { border-bottom: none; }
+        table tbody tr {
+            transition: background var(--transition);
+        }
+        table tbody tr:hover {
+            background: rgba(46, 204, 113, 0.04);
+        }
+        table tbody tr:last-child td {
+            border-bottom: none;
+        }
         .col-numero {
             width: 50px;
             text-align: center;
@@ -405,21 +494,23 @@
             font-variant-numeric: tabular-nums;
             font-feature-settings: "tnum";
         }
-
         tr.row-riscado td:nth-child(2),
-        tr.row-riscado td:nth-child(3) { text-decoration: line-through; color: #7a8a7d; }
-        tr.row-riscado td.col-numero { color: #5a6a5d; }
-
+        tr.row-riscado td:nth-child(3) {
+            text-decoration: line-through;
+            color: #7a8a7d;
+        }
+        tr.row-riscado td.col-numero {
+            color: #5a6a5d;
+        }
         .tempo-fora {
             font-size: 0.75rem;
-            background: rgba(255,193,7,0.15);
+            background: rgba(255, 193, 7, 0.15);
             color: #ffc107;
             padding: 2px 6px;
             border-radius: 4px;
             margin-left: 8px;
             font-weight: 600;
         }
-
         .check-square {
             display: inline-flex;
             align-items: center;
@@ -433,9 +524,13 @@
             transition: all 0.2s;
             user-select: none;
         }
-        .check-square:hover { background: rgba(46,204,113,0.15); border-color: #3ddb7e; }
-        .check-square:active { transform: scale(0.95); }
-
+        .check-square:hover {
+            background: rgba(46, 204, 113, 0.15);
+            border-color: #3ddb7e;
+        }
+        .check-square:active {
+            transform: scale(0.95);
+        }
         .editable-cell {
             padding: 2px 4px;
             border-radius: 4px;
@@ -450,32 +545,40 @@
             display: inline-block;
             min-width: 80px;
         }
-        .editable-cell:hover { border-color: #344a38; }
+        .editable-cell:hover {
+            border-color: #344a38;
+        }
         .editable-cell:focus {
             border-color: var(--accent) !important;
             background: var(--bg-input);
-            box-shadow: 0 0 0 3px rgba(46,204,113,0.12);
+            box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.12);
             color: #fff;
         }
-
         .empty-row td {
             text-align: center;
             padding: 40px 16px;
             color: var(--text-muted);
             font-size: 0.9rem;
         }
-        .empty-icon { font-size: 2.2rem; display: block; margin-bottom: 6px; opacity: 0.6; }
+        .empty-icon {
+            font-size: 2.2rem;
+            display: block;
+            margin-bottom: 6px;
+            opacity: 0.6;
+        }
 
         .modal-overlay {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.7);
             z-index: 100;
             align-items: center;
             justify-content: center;
         }
-        .modal-overlay.active { display: flex; }
+        .modal-overlay.active {
+            display: flex;
+        }
         .modal-content {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -485,7 +588,7 @@
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
         }
         .modal-header {
             display: flex;
@@ -495,10 +598,25 @@
             flex-wrap: wrap;
             gap: 10px;
         }
-        .modal-header h3 { font-size: 1.1rem; }
-        .modal-header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .modal-close { background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; }
-        .modal-close:hover { color: #fff; }
+        .modal-header h3 {
+            font-size: 1.1rem;
+        }
+        .modal-header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .modal-close:hover {
+            color: #fff;
+        }
         .btn-export {
             background: var(--accent);
             color: #0a1a10;
@@ -512,8 +630,9 @@
             align-items: center;
             gap: 6px;
         }
-        .btn-export:hover { background: #3ddb7e; }
-
+        .btn-export:hover {
+            background: #3ddb7e;
+        }
         .filter-date {
             padding: 5px 8px;
             border-radius: 5px;
@@ -525,7 +644,9 @@
             outline: none;
             width: 130px;
         }
-        .filter-date:focus { border-color: var(--accent); }
+        .filter-date:focus {
+            border-color: var(--accent);
+        }
 
         .footer {
             text-align: center;
@@ -534,7 +655,10 @@
             font-size: 0.75rem;
             opacity: 0.8;
         }
-        .footer span { color: var(--accent); font-weight: 600; }
+        .footer span {
+            color: var(--accent);
+            font-weight: 600;
+        }
 
         .toast {
             position: fixed;
@@ -548,29 +672,56 @@
             border-radius: 30px;
             font-size: 0.85rem;
             font-weight: 500;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
             z-index: 999;
             transition: transform 0.35s ease;
             pointer-events: none;
         }
-        .toast.show { transform: translateX(-50%) translateY(0); }
-        .toast.success { border-color: rgba(46,204,113,0.5); }
-        .toast.info { border-color: var(--accent); }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast.success {
+            border-color: rgba(46, 204, 113, 0.5);
+        }
+        .toast.info {
+            border-color: var(--accent);
+        }
 
         @media (max-width: 768px) {
-            .container { padding: 16px 12px 30px; }
-            .main-card { padding: 18px 14px; }
-            .header { flex-direction: column; align-items: flex-start; }
-            .add-field { width: 100%; }
-            .input-add { min-width: auto; width: 100%; }
-            .lock-container { margin-left: 8px; }
-            .filter-date { width: 100%; }
+            .container {
+                padding: 16px 12px 30px;
+            }
+            .main-card {
+                padding: 18px 14px;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .add-field {
+                width: 100%;
+            }
+            .input-add {
+                min-width: auto;
+                width: 100%;
+            }
+            .lock-container {
+                margin-left: 8px;
+            }
+            .filter-date {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- TELA DE SENHA (LOADING) -->
+    <!-- Indicador de conexão -->
+    <div class="connection-status offline" id="connectionStatus">
+        <span class="dot"></span> <span id="connectionLabel">Offline</span>
+    </div>
+
+    <!-- TELA DE SENHA -->
     <div class="password-overlay" id="passwordOverlay">
         <div class="password-card">
             <div class="logo-icon">
@@ -590,7 +741,7 @@
         </div>
     </div>
 
-    <!-- CONTEÚDO PRINCIPAL (inicialmente visível mas ficará atrás do overlay) -->
+    <!-- CONTEÚDO PRINCIPAL -->
     <div class="container" id="mainContent">
         <div class="header">
             <div class="logo">
@@ -624,7 +775,7 @@
 
         <div class="main-card">
             <div class="card-header-row">
-                <h2><span class="icon-dot"></span>Lista Motoboys</h2>
+                <h2><span class="icon-dot"></span>Lista Motoboys <span style="font-size:0.7rem;color:var(--text-muted);">(tempo real)</span></h2>
                 <div class="add-field">
                     <input type="text" id="input-nome" class="input-add" placeholder="Nome do motoboy" autocomplete="off">
                     <button class="btn btn-primary" id="btn-adicionar">+ Adicionar</button>
@@ -645,7 +796,7 @@
                     <tbody id="tbody-horarios"></tbody>
                 </table>
             </div>
-            <p style="font-size:0.75rem;color:var(--text-muted);margin-top:12px;">Ao chegar escrever o nome.</p>
+            <p style="font-size:0.75rem;color:var(--text-muted);margin-top:12px;">As alterações são sincronizadas automaticamente em todas as telas.</p>
         </div>
         <p class="footer">© 2026 <span>Regalo Pizzeria</span> — Todos os direitos reservados.</p>
     </div>
@@ -677,54 +828,43 @@
 
     <script>
         (function() {
-            // ── Verificação da senha de acesso ao site ──
+            // ═══════════════════════════════════════════
+            // CONFIGURE SEU FIREBASE AQUI (substitua pelos dados do seu projeto)
+            // ═══════════════════════════════════════════
+            const firebaseConfig = {
+                apiKey: "SUA_API_KEY",
+                authDomain: "SEU_PROJETO.firebaseapp.com",
+                databaseURL: "https://SEU_PROJETO-default-rtdb.firebaseio.com",
+                projectId: "SEU_PROJETO",
+                storageBucket: "SEU_PROJETO.appspot.com",
+                messagingSenderId: "SEU_SENDER_ID",
+                appId: "SEU_APP_ID"
+            };
+
+            // Inicializa o Firebase
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.database();
+
+            // Referências no Realtime Database
+            const registrosRef = db.ref('registros');
+            const checkoutsRef = db.ref('checkouts');
+            const historicoRef = db.ref('historico');
+
+            // ═══════════════════════════════════════════
+            // Variáveis locais (sincronizadas com o Firebase)
+            // ═══════════════════════════════════════════
+            let registros = [];
+            let checkouts = [];
+            let historico = [];
+            let adminLogado = sessionStorage.getItem('admin_logado') === 'true';
+
+            // ═══════════════════════════════════════════
+            // Elementos do DOM
+            // ═══════════════════════════════════════════
             const passwordOverlay = document.getElementById('passwordOverlay');
             const sitePassword = document.getElementById('sitePassword');
             const btnAccess = document.getElementById('btnAccess');
             const errorMsg = document.getElementById('errorMsg');
-
-            function checkSitePassword() {
-                const senha = sitePassword.value.trim();
-                if (senha === 'regalo2026') {
-                    // Senha correta: esconder overlay e armazenar na sessão
-                    passwordOverlay.classList.add('hidden');
-                    sessionStorage.setItem('site_authenticated', 'true');
-                    sitePassword.value = '';
-                    errorMsg.textContent = '';
-                } else {
-                    errorMsg.textContent = 'Senha incorreta. Tente novamente.';
-                    sitePassword.value = '';
-                    sitePassword.focus();
-                }
-            }
-
-            btnAccess.addEventListener('click', checkSitePassword);
-            sitePassword.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') checkSitePassword();
-            });
-
-            // Se já autenticado na sessão, remover overlay imediatamente
-            if (sessionStorage.getItem('site_authenticated') === 'true') {
-                passwordOverlay.classList.add('hidden');
-            }
-
-            // ── Dados e lógica do sistema ──
-            const STORAGE_KEY = 'regalo_motoboys_v13';
-            const CHECKOUTS_KEY = 'regalo_checkouts_v13';
-            const HISTORICO_KEY = 'regalo_historico_v13';
-
-            const dadosIniciais = [
-                { nome: 'João Silva', horario: '08:02', riscado: false, tempoFora: '' },
-                { nome: 'Maria Oliveira', horario: '08:17', riscado: false, tempoFora: '' },
-                { nome: 'Carlos Souza', horario: '07:55', riscado: false, tempoFora: '' },
-                { nome: 'Ana Pereira', horario: '09:30', riscado: false, tempoFora: '' }
-            ];
-
-            let registros = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [...dadosIniciais];
-            let checkouts = JSON.parse(localStorage.getItem(CHECKOUTS_KEY)) || [];
-            let historico = JSON.parse(localStorage.getItem(HISTORICO_KEY)) || [];
-            let adminLogado = sessionStorage.getItem('admin_logado') === 'true';
-
             const tbody = document.getElementById('tbody-horarios');
             const inputNome = document.getElementById('input-nome');
             const btnAdicionar = document.getElementById('btn-adicionar');
@@ -741,17 +881,76 @@
             const tbodyHistorico = document.getElementById('tbody-historico');
             const btnExportar = document.getElementById('btnExportar');
             const filtroData = document.getElementById('filtroData');
+            const connectionStatus = document.getElementById('connectionStatus');
+            const connectionLabel = document.getElementById('connectionLabel');
 
-            registros = registros.map(r => ({
-                nome: r.nome || '',
-                horario: r.horario || '',
-                riscado: r.riscado || false,
-                tempoFora: r.tempoFora || ''
-            }));
+            // ═══════════════════════════════════════════
+            // Indicador de conexão Firebase
+            // ═══════════════════════════════════════════
+            const connectedRef = db.ref('.info/connected');
+            connectedRef.on('value', (snap) => {
+                const online = snap.val() === true;
+                if (online) {
+                    connectionStatus.classList.add('online');
+                    connectionStatus.classList.remove('offline');
+                    connectionLabel.textContent = 'Online';
+                } else {
+                    connectionStatus.classList.add('offline');
+                    connectionStatus.classList.remove('online');
+                    connectionLabel.textContent = 'Offline';
+                }
+            });
 
-            function salvarRegistros() { localStorage.setItem(STORAGE_KEY, JSON.stringify(registros)); }
-            function salvarCheckouts() { localStorage.setItem(CHECKOUTS_KEY, JSON.stringify(checkouts)); }
-            function salvarHistorico() { localStorage.setItem(HISTORICO_KEY, JSON.stringify(historico)); }
+            // ═══════════════════════════════════════════
+            // Escuta mudanças em TEMPO REAL do Firebase
+            // ═══════════════════════════════════════════
+            registrosRef.on('value', (snapshot) => {
+                const dados = snapshot.val();
+                registros = dados ? Object.values(dados) : [];
+                // Garantir estrutura completa
+                registros = registros.map(r => ({
+                    nome: r.nome || '',
+                    horario: r.horario || '',
+                    riscado: r.riscado || false,
+                    tempoFora: r.tempoFora || ''
+                }));
+                renderizarTabela();
+            });
+
+            checkoutsRef.on('value', (snapshot) => {
+                const dados = snapshot.val();
+                checkouts = dados ? Object.values(dados) : [];
+            });
+
+            historicoRef.on('value', (snapshot) => {
+                const dados = snapshot.val();
+                historico = dados ? Object.values(dados) : [];
+                // Atualiza o modal se estiver aberto
+                if (modalHistorico.classList.contains('active')) {
+                    preencherTabelaHistorico();
+                }
+            });
+
+            // ═══════════════════════════════════════════
+            // Funções auxiliares
+            // ═══════════════════════════════════════════
+            function escaparHtml(texto) {
+                const div = document.createElement('div');
+                div.textContent = texto;
+                return div.innerHTML;
+            }
+
+            function formatarTempo(segundos) {
+                const mins = Math.floor(segundos / 60);
+                const segs = segundos % 60;
+                return `${String(mins).padStart(2, '0')}:${String(segs).padStart(2, '0')}`;
+            }
+
+            function formatarData(timestamp) {
+                const d = new Date(timestamp);
+                return d.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit' });
+            }
 
             function atualizarUIAdmin() {
                 if (adminLogado) {
@@ -772,6 +971,232 @@
                 }
             }
 
+            function renderizarTabela() {
+                if (registros.length === 0) {
+                    const colspan = adminLogado ? 5 : 4;
+                    tbody.innerHTML =
+                        `<tr class="empty-row"><td colspan="${colspan}"><span class="empty-icon">🛵</span>Nenhum motoboy registrado.</td></tr>`;
+                    return;
+                }
+                tbody.innerHTML = registros.map((reg, index) => {
+                    const classes = reg.riscado ? 'row-riscado' : '';
+                    const nomeBase = adminLogado ?
+                        `<span class="editable-cell" contenteditable="true" data-field="nome" data-index="${index}">${escaparHtml(reg.nome)}</span>` :
+                        escaparHtml(reg.nome);
+                    const tempoForaHtml = reg.tempoFora ?
+                        ` <span class="tempo-fora">${escaparHtml(reg.tempoFora)}</span>` : '';
+                    const nomeCell = nomeBase + tempoForaHtml;
+
+                    const horaCell = adminLogado ?
+                        `<span class="editable-cell" contenteditable="true" data-field="horario" data-index="${index}">${escaparHtml(reg.horario)}</span>` :
+                        escaparHtml(reg.horario);
+
+                    const acoesCell = adminLogado ?
+                        `<td><button class="btn-danger-text" data-remover="${index}" title="Remover permanentemente">🗑️</button></td>` :
+                        '';
+
+                    return `<tr class="${classes}" data-index="${index}">
+                        <td class="col-numero">${index + 1}</td>
+                        <td>${nomeCell}</td>
+                        <td class="col-horario">${horaCell}</td>
+                        <td class="col-check">
+                            <div class="check-square" data-check-index="${index}"></div>
+                        </td>
+                        ${acoesCell}
+                    </tr>`;
+                }).join('');
+            }
+
+            function preencherTabelaHistorico() {
+                const dadosFiltrados = obterHistoricoFiltrado();
+                tbodyHistorico.innerHTML = dadosFiltrados.length === 0 ?
+                    '<tr><td colspan="4" style="text-align:center;">Nenhum registro encontrado para esta data.</td></tr>' :
+                    dadosFiltrados.map(h => `
+                        <tr>
+                            <td>${escaparHtml(h.nome)}</td>
+                            <td>${formatarData(h.saida)}</td>
+                            <td>${formatarData(h.retorno)}</td>
+                            <td>${escaparHtml(h.duracao)}</td>
+                        </tr>`).join('');
+            }
+
+            function obterHistoricoFiltrado() {
+                const dataSelecionada = filtroData.value;
+                if (!dataSelecionada) return historico;
+                return historico.filter(h => {
+                    const dataSaida = new Date(h.saida);
+                    const dataRetorno = new Date(h.retorno);
+                    const dataFiltro = new Date(dataSelecionada + 'T00:00:00');
+                    const dataFiltroFim = new Date(dataSelecionada + 'T23:59:59');
+                    return (dataSaida >= dataFiltro && dataSaida <= dataFiltroFim) ||
+                        (dataRetorno >= dataFiltro && dataRetorno <= dataFiltroFim);
+                });
+            }
+
+            // ═══════════════════════════════════════════
+            // Operações no Firebase (substituem localStorage)
+            // ═══════════════════════════════════════════
+            function salvarRegistrosNoFirebase() {
+                registrosRef.set(registros);
+            }
+
+            function adicionarRegistro(nome) {
+                const agora = new Date();
+                const horario = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                const nomeTrim = nome.trim();
+                const nomeLower = nomeTrim.toLowerCase();
+
+                let tempoFora = '';
+                let checkoutEncontrado = -1;
+                for (let i = checkouts.length - 1; i >= 0; i--) {
+                    if (checkouts[i].nome.toLowerCase() === nomeLower) {
+                        checkoutEncontrado = i;
+                        break;
+                    }
+                }
+
+                if (checkoutEncontrado !== -1) {
+                    const checkout = checkouts[checkoutEncontrado];
+                    const diffSegundos = Math.floor((Date.now() - checkout.timestamp) / 1000);
+                    tempoFora = formatarTempo(diffSegundos);
+
+                    // Adiciona ao histórico
+                    const novoHistorico = {
+                        nome: checkout.nome,
+                        saida: checkout.timestamp,
+                        retorno: Date.now(),
+                        duracao: tempoFora
+                    };
+                    historico.push(novoHistorico);
+                    if (historico.length > 50) historico.shift();
+                    historicoRef.set(historico);
+
+                    // Remove o checkout
+                    checkouts.splice(checkoutEncontrado, 1);
+                    checkoutsRef.set(checkouts);
+
+                    mostrarToast(`⏱️ "${nomeTrim}" ficou fora por ${tempoFora}.`, 'info');
+                } else {
+                    mostrarToast(`✅ "${nomeTrim}" adicionado!`, 'success');
+                }
+
+                // Adiciona o registro
+                registros.push({ nome: nomeTrim, horario, riscado: false, tempoFora });
+                salvarRegistrosNoFirebase();
+
+                // Scroll para a última linha (após o Firebase atualizar a UI)
+                setTimeout(() => {
+                    const ultimaLinha = tbody.lastElementChild;
+                    if (ultimaLinha) ultimaLinha.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 150);
+            }
+
+            function removerComCheck(index) {
+                if (index < 0 || index >= registros.length) return;
+                const reg = registros[index];
+                checkouts.push({ nome: reg.nome, timestamp: Date.now() });
+                checkoutsRef.set(checkouts);
+                registros.splice(index, 1);
+                salvarRegistrosNoFirebase();
+                mostrarToast(`✅ "${reg.nome}" removido. Tempo será registrado ao retornar.`, 'info');
+            }
+
+            function removerPermanente(index) {
+                const nome = registros[index].nome;
+                registros.splice(index, 1);
+                salvarRegistrosNoFirebase();
+                mostrarToast(`🗑️ "${nome}" removido permanentemente.`, 'info');
+            }
+
+            function toggleRiscado(index) {
+                registros[index].riscado = !registros[index].riscado;
+                salvarRegistrosNoFirebase();
+            }
+
+            function editarCelula(index, field, novoValor) {
+                if (novoValor && registros[index][field] !== novoValor) {
+                    registros[index][field] = novoValor;
+                    salvarRegistrosNoFirebase();
+                    mostrarToast('💾 Alteração salva.', 'info');
+                }
+            }
+
+            // ═══════════════════════════════════════════
+            // Event Listeners da UI
+            // ═══════════════════════════════════════════
+            btnAdicionar.addEventListener('click', () => {
+                const nome = inputNome.value.trim();
+                if (!nome) { mostrarToast('⚠️ Digite um nome.', 'info'); return; }
+                adicionarRegistro(nome);
+                inputNome.value = '';
+                inputNome.focus();
+            });
+
+            inputNome.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault();
+                    btnAdicionar.click(); }
+            });
+
+            tbody.addEventListener('click', (e) => {
+                const checkSquare = e.target.closest('.check-square');
+                if (checkSquare) {
+                    e.stopPropagation();
+                    const index = parseInt(checkSquare.getAttribute('data-check-index'), 10);
+                    removerComCheck(index);
+                    return;
+                }
+
+                const tr = e.target.closest('tr');
+                if (!tr || tr.classList.contains('empty-row')) return;
+
+                const btnRem = e.target.closest('[data-remover]');
+                if (btnRem && adminLogado) {
+                    const index = parseInt(btnRem.getAttribute('data-remover'), 10);
+                    removerPermanente(index);
+                    return;
+                }
+
+                if (adminLogado && e.target.closest('.editable-cell')) return;
+
+                const index = parseInt(tr.getAttribute('data-index'), 10);
+                if (!isNaN(index) && registros[index]) {
+                    toggleRiscado(index);
+                }
+            });
+
+            tbody.addEventListener('focusout', (e) => {
+                if (!adminLogado) return;
+                const cell = e.target.closest('.editable-cell');
+                if (!cell) return;
+                const field = cell.getAttribute('data-field');
+                const index = parseInt(cell.getAttribute('data-index'), 10);
+                if (isNaN(index) || index < 0 || index >= registros.length) return;
+                const novoValor = cell.textContent.trim();
+                if (novoValor) {
+                    editarCelula(index, field, novoValor);
+                } else if (field === 'nome') {
+                    cell.textContent = registros[index][field];
+                } else if (field === 'horario') {
+                    registros[index][field] = '';
+                    salvarRegistrosNoFirebase();
+                }
+            });
+
+            tbody.addEventListener('keydown', (e) => {
+                if (!adminLogado) return;
+                const cell = e.target.closest('.editable-cell');
+                if (!cell) return;
+                if (e.key === 'Enter') { e.preventDefault();
+                    cell.blur(); }
+                if (e.key === 'Escape') {
+                    const index = parseInt(cell.getAttribute('data-index'), 10);
+                    const field = cell.getAttribute('data-field');
+                    if (!isNaN(index) && registros[index]) cell.textContent = registros[index][field];
+                    cell.blur();
+                }
+            });
+
+            // Admin login/logout
             function login(password) {
                 if (password === 'regalo2026') {
                     adminLogado = true;
@@ -808,240 +1233,44 @@
                 if (!e.target.closest('.lock-container')) lockPopover.classList.remove('active');
             });
 
-            function escaparHtml(texto) {
-                const div = document.createElement('div');
-                div.textContent = texto;
-                return div.innerHTML;
-            }
-
-            function formatarTempo(segundos) {
-                const mins = Math.floor(segundos / 60);
-                const segs = segundos % 60;
-                return `${String(mins).padStart(2, '0')}:${String(segs).padStart(2, '0')}`;
-            }
-
-            function formatarData(timestamp) {
-                const d = new Date(timestamp);
-                return d.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-            }
-
-            function renderizarTabela() {
-                if (registros.length === 0) {
-                    const colspan = adminLogado ? 5 : 4;
-                    tbody.innerHTML = `<tr class="empty-row"><td colspan="${colspan}"><span class="empty-icon">🛵</span>Nenhum motoboy registrado.</td></tr>`;
-                    return;
-                }
-                tbody.innerHTML = registros.map((reg, index) => {
-                    const classes = [];
-                    if (reg.riscado) classes.push('row-riscado');
-                    const rowClass = classes.join(' ');
-
-                    const nomeBase = adminLogado
-                        ? `<span class="editable-cell" contenteditable="true" data-field="nome" data-index="${index}">${escaparHtml(reg.nome)}</span>`
-                        : escaparHtml(reg.nome);
-                    const tempoForaHtml = reg.tempoFora ? ` <span class="tempo-fora">${escaparHtml(reg.tempoFora)}</span>` : '';
-                    const nomeCell = nomeBase + tempoForaHtml;
-
-                    const horaCell = adminLogado
-                        ? `<span class="editable-cell" contenteditable="true" data-field="horario" data-index="${index}">${escaparHtml(reg.horario)}</span>`
-                        : escaparHtml(reg.horario);
-
-                    const acoesCell = adminLogado
-                        ? `<td><button class="btn-danger-text" data-remover="${index}" title="Remover permanentemente">🗑️</button></td>`
-                        : '';
-
-                    return `<tr class="${rowClass}" data-index="${index}">
-                        <td class="col-numero">${index + 1}</td>
-                        <td>${nomeCell}</td>
-                        <td class="col-horario">${horaCell}</td>
-                        <td class="col-check">
-                            <div class="check-square" data-check-index="${index}"></div>
-                        </td>
-                        ${acoesCell}
-                    </tr>`;
-                }).join('');
-            }
-
-            function removerComCheck(index) {
-                if (index < 0 || index >= registros.length) return;
-                const reg = registros[index];
-                checkouts.push({ nome: reg.nome, timestamp: Date.now() });
-                salvarCheckouts();
-                registros.splice(index, 1);
-                salvarRegistros();
-                renderizarTabela();
-                mostrarToast(`✅ "${reg.nome}" removido. Tempo será registrado ao retornar.`, 'info');
-            }
-
-            function adicionarRegistro(nome) {
-                const agora = new Date();
-                const horario = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-                const nomeTrim = nome.trim();
-                const nomeLower = nomeTrim.toLowerCase();
-
-                let tempoFora = '';
-                let checkoutEncontrado = -1;
-                for (let i = checkouts.length - 1; i >= 0; i--) {
-                    if (checkouts[i].nome.toLowerCase() === nomeLower) {
-                        checkoutEncontrado = i;
-                        break;
-                    }
-                }
-                if (checkoutEncontrado !== -1) {
-                    const checkout = checkouts[checkoutEncontrado];
-                    const diffSegundos = Math.floor((Date.now() - checkout.timestamp) / 1000);
-                    tempoFora = formatarTempo(diffSegundos);
-                    historico.push({
-                        nome: checkout.nome,
-                        saida: checkout.timestamp,
-                        retorno: Date.now(),
-                        duracao: tempoFora
-                    });
-                    if (historico.length > 50) historico.shift();
-                    salvarHistorico();
-                    checkouts.splice(checkoutEncontrado, 1);
-                    salvarCheckouts();
-                }
-
-                registros.push({ nome: nomeTrim, horario, riscado: false, tempoFora });
-                salvarRegistros();
-                renderizarTabela();
-                if (tempoFora) {
-                    mostrarToast(`⏱️ "${nomeTrim}" ficou fora por ${tempoFora}.`, 'info');
-                } else {
-                    mostrarToast(`✅ "${nomeTrim}" adicionado!`, 'success');
-                }
-                const ultimaLinha = tbody.lastElementChild;
-                if (ultimaLinha) ultimaLinha.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-
-            btnAdicionar.addEventListener('click', () => {
-                const nome = inputNome.value.trim();
-                if (!nome) { mostrarToast('⚠️ Digite um nome.', 'info'); return; }
-                adicionarRegistro(nome);
-                inputNome.value = '';
-                inputNome.focus();
-            });
-            inputNome.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') { e.preventDefault(); btnAdicionar.click(); }
-            });
-
-            tbody.addEventListener('click', (e) => {
-                const checkSquare = e.target.closest('.check-square');
-                if (checkSquare) {
-                    e.stopPropagation();
-                    const index = parseInt(checkSquare.getAttribute('data-check-index'), 10);
-                    removerComCheck(index);
-                    return;
-                }
-
-                const tr = e.target.closest('tr');
-                if (!tr || tr.classList.contains('empty-row')) return;
-
-                const btnRem = e.target.closest('[data-remover]');
-                if (btnRem && adminLogado) {
-                    const index = parseInt(btnRem.getAttribute('data-remover'), 10);
-                    const nome = registros[index].nome;
-                    registros.splice(index, 1);
-                    salvarRegistros();
-                    renderizarTabela();
-                    mostrarToast(`🗑️ "${nome}" removido permanentemente.`, 'info');
-                    return;
-                }
-
-                if (adminLogado && e.target.closest('.editable-cell')) return;
-
-                const index = parseInt(tr.getAttribute('data-index'), 10);
-                if (!isNaN(index) && registros[index]) {
-                    registros[index].riscado = !registros[index].riscado;
-                    salvarRegistros();
-                    renderizarTabela();
-                }
-            });
-
-            tbody.addEventListener('focusout', (e) => {
-                if (!adminLogado) return;
-                const cell = e.target.closest('.editable-cell');
-                if (!cell) return;
-                const field = cell.getAttribute('data-field');
-                const index = parseInt(cell.getAttribute('data-index'), 10);
-                if (isNaN(index) || index < 0 || index >= registros.length) return;
-                const novoValor = cell.textContent.trim();
-                if (novoValor && registros[index][field] !== novoValor) {
-                    registros[index][field] = novoValor;
-                    salvarRegistros();
-                    mostrarToast('💾 Alteração salva.', 'info');
-                } else if (!novoValor && field === 'nome') {
-                    cell.textContent = registros[index][field];
-                } else if (!novoValor && field === 'horario') {
-                    registros[index][field] = '';
-                    salvarRegistros();
-                }
-            });
-
-            tbody.addEventListener('keydown', (e) => {
-                if (!adminLogado) return;
-                const cell = e.target.closest('.editable-cell');
-                if (!cell) return;
-                if (e.key === 'Enter') { e.preventDefault(); cell.blur(); }
-                if (e.key === 'Escape') {
-                    const index = parseInt(cell.getAttribute('data-index'), 10);
-                    const field = cell.getAttribute('data-field');
-                    if (!isNaN(index) && registros[index]) cell.textContent = registros[index][field];
-                    cell.blur();
-                }
-            });
-
-            function obterHistoricoFiltrado() {
-                const dataSelecionada = filtroData.value;
-                if (!dataSelecionada) return historico;
-                return historico.filter(h => {
-                    const dataSaida = new Date(h.saida);
-                    const dataRetorno = new Date(h.retorno);
-                    const dataFiltro = new Date(dataSelecionada + 'T00:00:00');
-                    const dataFiltroFim = new Date(dataSelecionada + 'T23:59:59');
-                    return (dataSaida >= dataFiltro && dataSaida <= dataFiltroFim) ||
-                           (dataRetorno >= dataFiltro && dataRetorno <= dataFiltroFim);
-                });
-            }
-
+            // Modal Histórico
             function abrirHistorico() {
-                const dadosFiltrados = obterHistoricoFiltrado();
-                tbodyHistorico.innerHTML = dadosFiltrados.length === 0
-                    ? '<tr><td colspan="4" style="text-align:center;">Nenhum registro encontrado para esta data.</td></tr>'
-                    : dadosFiltrados.map(h => `
-                        <tr>
-                            <td>${escaparHtml(h.nome)}</td>
-                            <td>${formatarData(h.saida)}</td>
-                            <td>${formatarData(h.retorno)}</td>
-                            <td>${escaparHtml(h.duracao)}</td>
-                        </tr>`).join('');
+                preencherTabelaHistorico();
                 modalHistorico.classList.add('active');
             }
-
-            filtroData.addEventListener('change', () => {
-                if (modalHistorico.classList.contains('active')) {
-                    abrirHistorico();
-                }
-            });
 
             function fecharModal() {
                 modalHistorico.classList.remove('active');
                 filtroData.value = '';
             }
 
-            function exportarParaExcel() {
+            filtroData.addEventListener('change', () => {
+                if (modalHistorico.classList.contains('active')) preencherTabelaHistorico();
+            });
+
+            btnHistorico.addEventListener('click', abrirHistorico);
+            closeModal.addEventListener('click', fecharModal);
+            modalHistorico.addEventListener('click', (e) => {
+                if (e.target === modalHistorico) fecharModal();
+            });
+
+            // Exportar Excel
+            btnExportar.addEventListener('click', () => {
                 const dadosExportar = obterHistoricoFiltrado();
                 if (dadosExportar.length === 0) {
                     mostrarToast('⚠️ Nenhum registro para exportar.', 'info');
                     return;
                 }
-                let html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
-                html += '<head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Registro</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>';
+                let html =
+                    '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
+                html +=
+                    '<head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Registro</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>';
                 html += '<body><table border="1">';
-                html += '<tr style="background-color:#2ecc71;color:#ffffff;font-weight:bold;"><td>Nome</td><td>Saída</td><td>Retorno</td><td>Duração</td></tr>';
+                html +=
+                    '<tr style="background-color:#2ecc71;color:#ffffff;font-weight:bold;"><td>Nome</td><td>Saída</td><td>Retorno</td><td>Duração</td></tr>';
                 dadosExportar.forEach(h => {
-                    html += `<tr><td>${h.nome}</td><td>${formatarData(h.saida)}</td><td>${formatarData(h.retorno)}</td><td>${h.duracao}</td></tr>`;
+                    html +=
+                        `<tr><td>${h.nome}</td><td>${formatarData(h.saida)}</td><td>${formatarData(h.retorno)}</td><td>${h.duracao}</td></tr>`;
                 });
                 html += '</table></body></html>';
                 const blob = new Blob(['\uFEFF' + html], { type: 'application/vnd.ms-excel;charset=utf-8' });
@@ -1054,16 +1283,11 @@
                 document.body.removeChild(link);
                 URL.revokeObjectURL(url);
                 mostrarToast('📥 Arquivo Excel exportado com sucesso!', 'success');
-            }
-
-            btnHistorico.addEventListener('click', abrirHistorico);
-            btnExportar.addEventListener('click', exportarParaExcel);
-            closeModal.addEventListener('click', fecharModal);
-            modalHistorico.addEventListener('click', (e) => {
-                if (e.target === modalHistorico) fecharModal();
             });
 
+            // Toast
             let toastTimeout;
+
             function mostrarToast(mensagem, tipo = 'info') {
                 const toast = document.getElementById('toast');
                 toast.textContent = mensagem;
@@ -1072,8 +1296,36 @@
                 toastTimeout = setTimeout(() => toast.classList.remove('show'), 2200);
             }
 
+            // ═══════════════════════════════════════════
+            // Senha de acesso ao site (local)
+            // ═══════════════════════════════════════════
+            function checkSitePassword() {
+                const senha = sitePassword.value.trim();
+                if (senha === 'regalo2026') {
+                    passwordOverlay.classList.add('hidden');
+                    sessionStorage.setItem('site_authenticated', 'true');
+                    sitePassword.value = '';
+                    errorMsg.textContent = '';
+                } else {
+                    errorMsg.textContent = 'Senha incorreta. Tente novamente.';
+                    sitePassword.value = '';
+                    sitePassword.focus();
+                }
+            }
+
+            btnAccess.addEventListener('click', checkSitePassword);
+            sitePassword.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') checkSitePassword();
+            });
+
+            if (sessionStorage.getItem('site_authenticated') === 'true') {
+                passwordOverlay.classList.add('hidden');
+            }
+
+            // ═══════════════════════════════════════════
+            // Inicialização
+            // ═══════════════════════════════════════════
             atualizarUIAdmin();
-            renderizarTabela();
             inputNome.focus();
         })();
     </script>
