@@ -755,6 +755,7 @@
             </div>
             <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
                 <button class="btn btn-outline" id="btnMotoboys" style="display:none;">👥 Cadastro</button>
+                <button class="btn btn-outline" id="btnFaltantes" style="display:none;">🔍 Faltantes</button>
                 <button class="btn btn-outline" id="btnHistorico" style="display:none;">📋 Histórico</button>
                 <button class="btn btn-outline" id="btnSairVisivel" style="display:none;" title="Sair do modo admin">🚪 Sair</button>
             </div>
@@ -834,6 +835,25 @@
         </div>
     </div>
 
+    <!-- Modal Faltantes (admin) -->
+    <div class="modal-overlay" id="modalFaltantes">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔍 Motoboys cadastrados que ainda não estão na lista</h3>
+                <button class="modal-close" id="closeModalFaltantes">✕</button>
+            </div>
+            <div class="table-wrapper">
+                <table id="tabela-faltantes">
+                    <thead>
+                        <tr><th>Nome</th></tr>
+                    </thead>
+                    <tbody id="tbody-faltantes"></tbody>
+                </table>
+            </div>
+            <p style="font-size:0.7rem;color:var(--text-muted);margin-top:8px;">Esses motoboys estão cadastrados mas ainda não foram registrados na lista atual.</p>
+        </div>
+    </div>
+
     <div class="toast" id="toast"></div>
 
     <script>
@@ -863,7 +883,6 @@
             let motoboys = [];
             let adminLogado = sessionStorage.getItem('admin_logado') === 'true';
 
-            // Controle de reset diário (baseado na "data de corte" 02:00)
             function obterDataCorte() {
                 const agora = new Date();
                 if (agora.getHours() < 2) {
@@ -897,6 +916,7 @@
             const btnLockLogout = document.getElementById('btnLockLogout');
             const btnHistorico = document.getElementById('btnHistorico');
             const btnMotoboys = document.getElementById('btnMotoboys');
+            const btnFaltantes = document.getElementById('btnFaltantes');
             const btnSairVisivel = document.getElementById('btnSairVisivel');
             const thAcoes = document.getElementById('th-acoes');
             const modalHistorico = document.getElementById('modalHistorico');
@@ -913,6 +933,10 @@
             const btnAdicionarMotoboy = document.getElementById('btn-adicionar-motoboy');
             const btnRemoverTodosMotoboys = document.getElementById('btn-remover-todos-motoboys');
             const tbodyMotoboys = document.getElementById('tbody-motoboys');
+
+            const modalFaltantes = document.getElementById('modalFaltantes');
+            const closeModalFaltantes = document.getElementById('closeModalFaltantes');
+            const tbodyFaltantes = document.getElementById('tbody-faltantes');
 
             const connectedRef = db.ref('.info/connected');
             connectedRef.on('value', (snap) => {
@@ -938,6 +962,10 @@
                     tempoFora: r.tempoFora || ''
                 }));
                 renderizarTabela();
+                // Se o modal de faltantes estiver aberto, atualiza também
+                if (modalFaltantes.classList.contains('active')) {
+                    preencherTabelaFaltantes();
+                }
             });
 
             checkoutsRef.on('value', (snapshot) => {
@@ -958,6 +986,10 @@
                 motoboys = dados ? Object.values(dados) : [];
                 if (modalMotoboys.classList.contains('active')) {
                     renderizarTabelaMotoboys();
+                }
+                // Atualiza faltantes se aberto
+                if (modalFaltantes.classList.contains('active')) {
+                    preencherTabelaFaltantes();
                 }
             });
 
@@ -990,6 +1022,7 @@
                     thAcoes.style.display = 'table-cell';
                     btnHistorico.style.display = 'inline-flex';
                     btnMotoboys.style.display = 'inline-flex';
+                    btnFaltantes.style.display = 'inline-flex';
                     btnSairVisivel.style.display = 'inline-flex';
                 } else {
                     lockIcon.textContent = '🍕';
@@ -998,6 +1031,7 @@
                     thAcoes.style.display = 'none';
                     btnHistorico.style.display = 'none';
                     btnMotoboys.style.display = 'none';
+                    btnFaltantes.style.display = 'none';
                     btnSairVisivel.style.display = 'none';
                 }
             }
@@ -1069,6 +1103,25 @@
                         <td><button class="btn-danger-text" data-remover-motoboy="${index}">🗑️</button></td>
                     </tr>
                 `).join('');
+            }
+
+            // Função para calcular os nomes faltantes
+            function obterNomesFaltantes() {
+                const nomesRegistrados = registros.map(r => r.nome.toLowerCase());
+                return motoboys.filter(m => !nomesRegistrados.includes(m.nome.toLowerCase()));
+            }
+
+            function preencherTabelaFaltantes() {
+                const faltantes = obterNomesFaltantes();
+                if (faltantes.length === 0) {
+                    tbodyFaltantes.innerHTML = '<tr class="empty-row"><td>✅ Todos os cadastrados já estão na lista!</td></tr>';
+                } else {
+                    tbodyFaltantes.innerHTML = faltantes.map(m => `
+                        <tr>
+                            <td>${escaparHtml(m.nome)}</td>
+                        </tr>
+                    `).join('');
+                }
             }
 
             function salvarRegistrosNoFirebase() {
@@ -1190,6 +1243,18 @@
                     motoboysRef.set([]);
                     mostrarToast('🗑️ Todos os motoboys foram removidos.', 'info');
                 }
+            });
+
+            // Eventos do novo modal "Faltantes"
+            btnFaltantes.addEventListener('click', () => {
+                preencherTabelaFaltantes();
+                modalFaltantes.classList.add('active');
+            });
+            closeModalFaltantes.addEventListener('click', () => {
+                modalFaltantes.classList.remove('active');
+            });
+            modalFaltantes.addEventListener('click', (e) => {
+                if (e.target === modalFaltantes) modalFaltantes.classList.remove('active');
             });
 
             btnAdicionar.addEventListener('click', () => {
