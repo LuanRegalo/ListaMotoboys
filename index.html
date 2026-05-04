@@ -72,199 +72,14 @@
             -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 75%);
         }
 
-        .connection-status {
-            position: fixed;
-            top: 12px;
-            right: 16px;
-            z-index: 2000;
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 5px 12px;
-            border-radius: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(4px);
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            pointer-events: none;
-        }
-        .connection-status .dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #e74c3c;
-            transition: background 0.3s;
-        }
-        .connection-status.online .dot {
-            background: #2ecc71;
-            box-shadow: 0 0 6px var(--accent-glow);
-        }
-
-        .password-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(10, 14, 13, 0.96);
-            backdrop-filter: blur(8px);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.4s ease, visibility 0.4s;
-        }
-        .password-overlay.hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-        .password-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 40px 30px;
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-            animation: fadeInUp 0.5s ease;
-        }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .password-card .logo-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 64px;
-            height: 64px;
-            background: var(--accent);
-            border-radius: 18px;
-            box-shadow: 0 6px 18px var(--accent-glow);
-            margin: 0 auto 20px;
-        }
-        .password-card .logo-icon svg {
-            width: 38px;
-            height: 38px;
-            fill: #fff;
-        }
-        .password-card h2 {
-            font-size: 1.6rem;
-            font-weight: 700;
-            color: #fff;
-            margin-bottom: 6px;
-        }
-        .password-card .sub {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 24px;
-        }
-        .password-card input {
-            width: 100%;
-            padding: 12px 16px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-            background: var(--bg-input);
-            color: #fff;
-            font-family: var(--font-main);
-            font-size: 1rem;
-            outline: none;
-            margin-bottom: 16px;
-            text-align: center;
-            letter-spacing: 2px;
-        }
-        .password-card input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.15);
-        }
-        .password-card .btn-access {
-            width: 100%;
-            padding: 12px;
-            border-radius: var(--radius-sm);
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            border: none;
-            background: var(--accent);
-            color: #0a1a10;
-            transition: all var(--transition);
-        }
-        .password-card .btn-access:hover {
-            background: #3ddb7e;
-            transform: translateY(-1px);
-        }
-        .password-card .error-msg {
-            color: var(--red-light);
-            font-size: 0.8rem;
-            margin-top: 8px;
-            min-height: 20px;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 960px;
-            padding: 28px 20px 40px;
-            position: relative;
-            z-index: 1;
-        }
-        .header {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            flex-wrap: wrap;
-            gap: 20px;
-            position: relative;
-        }
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-        .logo .logo-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 56px;
-            height: 56px;
-            background: var(--accent);
-            border-radius: 14px;
-            box-shadow: 0 4px 12px var(--accent-glow);
-            flex-shrink: 0;
-        }
-        .logo .logo-icon svg {
-            width: 34px;
-            height: 34px;
-            fill: #fff;
-        }
-        .logo-text {
-            display: flex;
-            flex-direction: column;
-            margin-left: 4px;
-        }
-        .logo-main {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #ffffff;
-            letter-spacing: -0.5px;
-            line-height: 1;
-        }
-        .logo-sub {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--accent-light);
-            letter-spacing: 2.5px;
-            text-transform: uppercase;
-        }
         .lock-container {
             position: relative;
-            margin-left: 12px;
             display: flex;
             align-items: center;
+            margin-left: auto;
         }
         .lock-icon {
-            font-size: 1.8rem;
+            font-size: 1.4rem;
             cursor: pointer;
             transition: transform 0.2s;
             user-select: none;
@@ -331,6 +146,64 @@
         }
         .logout-link:hover {
             color: var(--red-light);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 960px;
+            padding: 28px 20px 40px;
+            position: relative;
+            z-index: 1;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 20px;
+            position: relative;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .logo .logo-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 56px;
+            height: 56px;
+            background: var(--accent);
+            border-radius: 14px;
+            box-shadow: 0 4px 12px var(--accent-glow);
+            flex-shrink: 0;
+        }
+        .logo .logo-icon svg {
+            width: 34px;
+            height: 34px;
+            fill: #fff;
+        }
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            margin-left: 4px;
+        }
+        .logo-main {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+            line-height: 1;
+        }
+        .logo-sub {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--accent-light);
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
         }
 
         .main-card {
@@ -695,7 +568,7 @@
                 width: 100%;
             }
             .lock-container {
-                margin-left: 8px;
+                margin-left: 0;
             }
             .filter-date {
                 width: 100%;
@@ -704,29 +577,6 @@
     </style>
 </head>
 <body>
-
-    <div class="connection-status offline" id="connectionStatus">
-        <span class="dot"></span> <span id="connectionLabel">Offline</span>
-    </div>
-
-    <div class="password-overlay" id="passwordOverlay">
-        <div class="password-card">
-            <div class="logo-icon">
-                <svg viewBox="0 0 48 48">
-                    <circle cx="24" cy="24" r="20" fill="#fff" stroke="#e74c3c" stroke-width="2"/>
-                    <circle cx="18" cy="18" r="4" fill="#e74c3c"/>
-                    <circle cx="30" cy="20" r="3.5" fill="#e74c3c"/>
-                    <circle cx="24" cy="30" r="4" fill="#e74c3c"/>
-                    <circle cx="24" cy="24" r="2" fill="#2ecc71"/>
-                </svg>
-            </div>
-            <h2>Regalo Pizzeria</h2>
-            <p class="sub">Digite a senha para acessar o painel</p>
-            <input type="password" id="sitePassword" placeholder="Senha" autocomplete="off">
-            <button class="btn-access" id="btnAccess">Acessar</button>
-            <p class="error-msg" id="errorMsg"></p>
-        </div>
-    </div>
 
     <div class="container" id="mainContent">
         <div class="header">
@@ -744,21 +594,24 @@
                     <span class="logo-main">REGALO</span>
                     <span class="logo-sub">Pizzeria</span>
                 </div>
-                <div class="lock-container">
-                    <button class="lock-icon" id="lockIcon" title="Acesso restrito">🍕</button>
-                    <div class="lock-popover" id="lockPopover">
-                        <input type="password" id="lockPass" placeholder="Senha admin" autocomplete="off">
-                        <button class="btn-sm" id="btnLockLogin">Entrar</button>
-                        <span class="logout-link" id="btnLockLogout" style="display:none;">Sair (popover)</span>
-                    </div>
+            </div>
+
+            <!-- Apenas o cadeado de admin, sem contador de usuários -->
+            <div class="lock-container">
+                <button class="lock-icon" id="lockIcon" title="Acesso restrito">🔒</button>
+                <div class="lock-popover" id="lockPopover">
+                    <input type="password" id="lockPass" placeholder="Senha admin" autocomplete="off">
+                    <button class="btn-sm" id="btnLockLogin">Entrar</button>
+                    <span class="logout-link" id="btnLockLogout" style="display:none;">Sair (popover)</span>
                 </div>
             </div>
-            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-                <button class="btn btn-outline" id="btnMotoboys" style="display:none;">👥 Cadastro</button>
-                <button class="btn btn-outline" id="btnFaltantes" style="display:none;">🔍 Faltantes</button>
-                <button class="btn btn-outline" id="btnHistorico" style="display:none;">📋 Histórico</button>
-                <button class="btn btn-outline" id="btnSairVisivel" style="display:none;" title="Sair do modo admin">🚪 Sair</button>
-            </div>
+        </div>
+
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom: 10px;">
+            <button class="btn btn-outline" id="btnMotoboys" style="display:none;">👥 Cadastro</button>
+            <button class="btn btn-outline" id="btnFaltantes" style="display:none;">🔍 Faltantes</button>
+            <button class="btn btn-outline" id="btnHistorico" style="display:none;">📋 Histórico</button>
+            <button class="btn btn-outline" id="btnSairVisivel" style="display:none;" title="Sair do modo admin">🚪 Sair</button>
         </div>
 
         <div class="main-card">
@@ -785,6 +638,7 @@
                 </table>
             </div>
         </div>
+
         <p class="footer">© 2026 <span>Regalo Pizzeria</span> — Todos os direitos reservados.</p>
     </div>
 
@@ -902,10 +756,6 @@
                 }
             }
 
-            const passwordOverlay = document.getElementById('passwordOverlay');
-            const sitePassword = document.getElementById('sitePassword');
-            const btnAccess = document.getElementById('btnAccess');
-            const errorMsg = document.getElementById('errorMsg');
             const tbody = document.getElementById('tbody-horarios');
             const inputNome = document.getElementById('input-nome');
             const btnAdicionar = document.getElementById('btn-adicionar');
@@ -924,8 +774,6 @@
             const tbodyHistorico = document.getElementById('tbody-historico');
             const btnExportar = document.getElementById('btnExportar');
             const filtroData = document.getElementById('filtroData');
-            const connectionStatus = document.getElementById('connectionStatus');
-            const connectionLabel = document.getElementById('connectionLabel');
 
             const modalMotoboys = document.getElementById('modalMotoboys');
             const closeModalMotoboys = document.getElementById('closeModalMotoboys');
@@ -938,20 +786,6 @@
             const closeModalFaltantes = document.getElementById('closeModalFaltantes');
             const tbodyFaltantes = document.getElementById('tbody-faltantes');
 
-            const connectedRef = db.ref('.info/connected');
-            connectedRef.on('value', (snap) => {
-                const online = snap.val() === true;
-                if (online) {
-                    connectionStatus.classList.add('online');
-                    connectionStatus.classList.remove('offline');
-                    connectionLabel.textContent = 'Online';
-                } else {
-                    connectionStatus.classList.add('offline');
-                    connectionStatus.classList.remove('online');
-                    connectionLabel.textContent = 'Offline';
-                }
-            });
-
             registrosRef.on('value', (snapshot) => {
                 const dados = snapshot.val();
                 registros = dados ? Object.values(dados) : [];
@@ -962,7 +796,6 @@
                     tempoFora: r.tempoFora || ''
                 }));
                 renderizarTabela();
-                // Se o modal de faltantes estiver aberto, atualiza também
                 if (modalFaltantes.classList.contains('active')) {
                     preencherTabelaFaltantes();
                 }
@@ -987,7 +820,6 @@
                 if (modalMotoboys.classList.contains('active')) {
                     renderizarTabelaMotoboys();
                 }
-                // Atualiza faltantes se aberto
                 if (modalFaltantes.classList.contains('active')) {
                     preencherTabelaFaltantes();
                 }
@@ -1015,7 +847,7 @@
 
             function atualizarUIAdmin() {
                 if (adminLogado) {
-                    lockIcon.textContent = '🍕';
+                    lockIcon.textContent = '🔓';
                     lockIcon.title = 'Admin logado';
                     btnLockLogout.style.display = 'block';
                     lockPopover.classList.remove('active');
@@ -1025,7 +857,7 @@
                     btnFaltantes.style.display = 'inline-flex';
                     btnSairVisivel.style.display = 'inline-flex';
                 } else {
-                    lockIcon.textContent = '🍕';
+                    lockIcon.textContent = '🔒';
                     lockIcon.title = 'Acesso restrito';
                     btnLockLogout.style.display = 'none';
                     thAcoes.style.display = 'none';
@@ -1105,7 +937,6 @@
                 `).join('');
             }
 
-            // Função para calcular os nomes faltantes
             function obterNomesFaltantes() {
                 const nomesRegistrados = registros.map(r => r.nome.toLowerCase());
                 return motoboys.filter(m => !nomesRegistrados.includes(m.nome.toLowerCase()));
@@ -1233,7 +1064,6 @@
                 mostrarToast(`🗑️ "${nome}" removido do cadastro.`, 'info');
             }
 
-            // Evento do botão "Remover todos"
             btnRemoverTodosMotoboys.addEventListener('click', () => {
                 if (motoboys.length === 0) {
                     mostrarToast('📭 Nenhum motoboy cadastrado para remover.', 'info');
@@ -1245,7 +1075,6 @@
                 }
             });
 
-            // Eventos do novo modal "Faltantes"
             btnFaltantes.addEventListener('click', () => {
                 preencherTabelaFaltantes();
                 modalFaltantes.classList.add('active');
@@ -1453,29 +1282,7 @@
                 toastTimeout = setTimeout(() => toast.classList.remove('show'), 2200);
             }
 
-            function checkSitePassword() {
-                const senha = sitePassword.value.trim();
-                if (senha === 'regalo2026') {
-                    passwordOverlay.classList.add('hidden');
-                    sessionStorage.setItem('site_authenticated', 'true');
-                    sitePassword.value = '';
-                    errorMsg.textContent = '';
-                } else {
-                    errorMsg.textContent = 'Senha incorreta. Tente novamente.';
-                    sitePassword.value = '';
-                    sitePassword.focus();
-                }
-            }
-
-            btnAccess.addEventListener('click', checkSitePassword);
-            sitePassword.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') checkSitePassword();
-            });
-
-            if (sessionStorage.getItem('site_authenticated') === 'true') {
-                passwordOverlay.classList.add('hidden');
-            }
-
+            // Inicialização
             atualizarUIAdmin();
             inputNome.focus();
         })();
