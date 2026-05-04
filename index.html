@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista Motoboys | Regalo Pizzeria</title>
 
-    <!-- Firebase SDKs (necessário para sincronização em tempo real) -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js">
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js">
-    </script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 
     <style>
         :root {
@@ -74,7 +72,6 @@
             -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 75%);
         }
 
-        /* Indicador de status da conexão */
         .connection-status {
             position: fixed;
             top: 12px;
@@ -104,7 +101,6 @@
             box-shadow: 0 0 6px var(--accent-glow);
         }
 
-        /* ── Tela de senha (loading) ── */
         .password-overlay {
             position: fixed;
             inset: 0;
@@ -133,14 +129,8 @@
             animation: fadeInUp 0.5s ease;
         }
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .password-card .logo-icon {
             display: flex;
@@ -210,7 +200,6 @@
             min-height: 20px;
         }
 
-        /* ── Conteúdo principal ── */
         .container {
             width: 100%;
             max-width: 960px;
@@ -716,12 +705,10 @@
 </head>
 <body>
 
-    <!-- Indicador de conexão -->
     <div class="connection-status offline" id="connectionStatus">
         <span class="dot"></span> <span id="connectionLabel">Offline</span>
     </div>
 
-    <!-- TELA DE SENHA -->
     <div class="password-overlay" id="passwordOverlay">
         <div class="password-card">
             <div class="logo-icon">
@@ -741,7 +728,6 @@
         </div>
     </div>
 
-    <!-- CONTEÚDO PRINCIPAL -->
     <div class="container" id="mainContent">
         <div class="header">
             <div class="logo">
@@ -768,6 +754,7 @@
                 </div>
             </div>
             <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                <button class="btn btn-outline" id="btnMotoboys" style="display:none;">👥 Cadastro</button>
                 <button class="btn btn-outline" id="btnHistorico" style="display:none;">📋 Histórico</button>
                 <button class="btn btn-outline" id="btnSairVisivel" style="display:none;" title="Sair do modo admin">🚪 Sair</button>
             </div>
@@ -796,7 +783,6 @@
                     <tbody id="tbody-horarios"></tbody>
                 </table>
             </div>
-            <p style="font-size:0.75rem;color:var(--text-muted);margin-top:12px;">As alterações são sincronizadas automaticamente em todas as telas.</p>
         </div>
         <p class="footer">© 2026 <span>Regalo Pizzeria</span> — Todos os direitos reservados.</p>
     </div>
@@ -824,13 +810,34 @@
         </div>
     </div>
 
+    <!-- Modal Cadastro de Motoboys (admin) -->
+    <div class="modal-overlay" id="modalMotoboys">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>👥 Motoboys Cadastrados</h3>
+                <button class="modal-close" id="closeModalMotoboys">✕</button>
+            </div>
+            <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap: wrap;">
+                <input type="text" id="input-nome-motoboy" class="input-add" placeholder="Nome do motoboy" autocomplete="off" style="flex:1;">
+                <button class="btn btn-primary" id="btn-adicionar-motoboy">+ Adicionar</button>
+                <button class="btn btn-outline" id="btn-remover-todos-motoboys" title="Remover todos os cadastros">🗑️ Remover todos</button>
+            </div>
+            <div class="table-wrapper">
+                <table id="tabela-motoboys">
+                    <thead>
+                        <tr><th>Nome</th><th>Ações</th></tr>
+                    </thead>
+                    <tbody id="tbody-motoboys"></tbody>
+                </table>
+            </div>
+            <p style="font-size:0.7rem;color:var(--text-muted);margin-top:8px;">Apenas nomes cadastrados aqui poderão ser usados por usuários comuns.</p>
+        </div>
+    </div>
+
     <div class="toast" id="toast"></div>
 
     <script>
         (function() {
-            // ═══════════════════════════════════════════
-            // CONFIGURAÇÃO DO SEU FIREBASE (já preenchida)
-            // ═══════════════════════════════════════════
             const firebaseConfig = {
                 apiKey: "AIzaSyDISoB8yR1PVj0yrqo33Lj54pVxPxEqXC0",
                 authDomain: "lista-motoboys-4be41.firebaseapp.com",
@@ -839,29 +846,43 @@
                 storageBucket: "lista-motoboys-4be41.firebasestorage.app",
                 messagingSenderId: "1080781521969",
                 appId: "1:1080781521969:web:a988583631ce8d49658110",
-                measurementId: "G-5W7XYRJT8C" // opcional, mantido para compatibilidade
+                measurementId: "G-5W7XYRJT8C"
             };
 
-            // Inicializa o Firebase (compatível com as tags script)
             firebase.initializeApp(firebaseConfig);
             const db = firebase.database();
 
-            // Referências no Realtime Database
             const registrosRef = db.ref('registros');
             const checkoutsRef = db.ref('checkouts');
             const historicoRef = db.ref('historico');
+            const motoboysRef = db.ref('motoboys');
 
-            // ═══════════════════════════════════════════
-            // Variáveis locais (sincronizadas com o Firebase)
-            // ═══════════════════════════════════════════
             let registros = [];
             let checkouts = [];
             let historico = [];
+            let motoboys = [];
             let adminLogado = sessionStorage.getItem('admin_logado') === 'true';
 
-            // ═══════════════════════════════════════════
-            // Elementos do DOM
-            // ═══════════════════════════════════════════
+            // Controle de reset diário (baseado na "data de corte" 02:00)
+            function obterDataCorte() {
+                const agora = new Date();
+                if (agora.getHours() < 2) {
+                    agora.setDate(agora.getDate() - 1);
+                }
+                return agora.toISOString().split('T')[0];
+            }
+
+            function realizarResetDiarioSeNecessario() {
+                const dataHoje = obterDataCorte();
+                const ultimaLimpeza = localStorage.getItem('ultimaLimpezaDiaria');
+                if (ultimaLimpeza !== dataHoje) {
+                    registrosRef.set([]);
+                    checkoutsRef.set([]);
+                    localStorage.setItem('ultimaLimpezaDiaria', dataHoje);
+                    console.log('Reset diário executado para a data:', dataHoje);
+                }
+            }
+
             const passwordOverlay = document.getElementById('passwordOverlay');
             const sitePassword = document.getElementById('sitePassword');
             const btnAccess = document.getElementById('btnAccess');
@@ -875,6 +896,7 @@
             const btnLockLogin = document.getElementById('btnLockLogin');
             const btnLockLogout = document.getElementById('btnLockLogout');
             const btnHistorico = document.getElementById('btnHistorico');
+            const btnMotoboys = document.getElementById('btnMotoboys');
             const btnSairVisivel = document.getElementById('btnSairVisivel');
             const thAcoes = document.getElementById('th-acoes');
             const modalHistorico = document.getElementById('modalHistorico');
@@ -885,9 +907,13 @@
             const connectionStatus = document.getElementById('connectionStatus');
             const connectionLabel = document.getElementById('connectionLabel');
 
-            // ═══════════════════════════════════════════
-            // Indicador de conexão Firebase
-            // ═══════════════════════════════════════════
+            const modalMotoboys = document.getElementById('modalMotoboys');
+            const closeModalMotoboys = document.getElementById('closeModalMotoboys');
+            const inputNomeMotoboy = document.getElementById('input-nome-motoboy');
+            const btnAdicionarMotoboy = document.getElementById('btn-adicionar-motoboy');
+            const btnRemoverTodosMotoboys = document.getElementById('btn-remover-todos-motoboys');
+            const tbodyMotoboys = document.getElementById('tbody-motoboys');
+
             const connectedRef = db.ref('.info/connected');
             connectedRef.on('value', (snap) => {
                 const online = snap.val() === true;
@@ -902,13 +928,9 @@
                 }
             });
 
-            // ═══════════════════════════════════════════
-            // Escuta mudanças em TEMPO REAL do Firebase
-            // ═══════════════════════════════════════════
             registrosRef.on('value', (snapshot) => {
                 const dados = snapshot.val();
                 registros = dados ? Object.values(dados) : [];
-                // Garantir estrutura completa
                 registros = registros.map(r => ({
                     nome: r.nome || '',
                     horario: r.horario || '',
@@ -926,15 +948,22 @@
             historicoRef.on('value', (snapshot) => {
                 const dados = snapshot.val();
                 historico = dados ? Object.values(dados) : [];
-                // Atualiza o modal se estiver aberto
                 if (modalHistorico.classList.contains('active')) {
                     preencherTabelaHistorico();
                 }
             });
 
-            // ═══════════════════════════════════════════
-            // Funções auxiliares
-            // ═══════════════════════════════════════════
+            motoboysRef.on('value', (snapshot) => {
+                const dados = snapshot.val();
+                motoboys = dados ? Object.values(dados) : [];
+                if (modalMotoboys.classList.contains('active')) {
+                    renderizarTabelaMotoboys();
+                }
+            });
+
+            realizarResetDiarioSeNecessario();
+            setInterval(realizarResetDiarioSeNecessario, 60000);
+
             function escaparHtml(texto) {
                 const div = document.createElement('div');
                 div.textContent = texto;
@@ -949,8 +978,7 @@
 
             function formatarData(timestamp) {
                 const d = new Date(timestamp);
-                return d.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric',
-                    hour: '2-digit', minute: '2-digit' });
+                return d.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
             }
 
             function atualizarUIAdmin() {
@@ -961,6 +989,7 @@
                     lockPopover.classList.remove('active');
                     thAcoes.style.display = 'table-cell';
                     btnHistorico.style.display = 'inline-flex';
+                    btnMotoboys.style.display = 'inline-flex';
                     btnSairVisivel.style.display = 'inline-flex';
                 } else {
                     lockIcon.textContent = '🍕';
@@ -968,6 +997,7 @@
                     btnLockLogout.style.display = 'none';
                     thAcoes.style.display = 'none';
                     btnHistorico.style.display = 'none';
+                    btnMotoboys.style.display = 'none';
                     btnSairVisivel.style.display = 'none';
                 }
             }
@@ -975,8 +1005,7 @@
             function renderizarTabela() {
                 if (registros.length === 0) {
                     const colspan = adminLogado ? 5 : 4;
-                    tbody.innerHTML =
-                        `<tr class="empty-row"><td colspan="${colspan}"><span class="empty-icon">🛵</span>Nenhum motoboy registrado.</td></tr>`;
+                    tbody.innerHTML = `<tr class="empty-row"><td colspan="${colspan}"><span class="empty-icon">🛵</span>Nenhum motoboy registrado.</td></tr>`;
                     return;
                 }
                 tbody.innerHTML = registros.map((reg, index) => {
@@ -984,18 +1013,13 @@
                     const nomeBase = adminLogado ?
                         `<span class="editable-cell" contenteditable="true" data-field="nome" data-index="${index}">${escaparHtml(reg.nome)}</span>` :
                         escaparHtml(reg.nome);
-                    const tempoForaHtml = reg.tempoFora ?
-                        ` <span class="tempo-fora">${escaparHtml(reg.tempoFora)}</span>` : '';
+                    const tempoForaHtml = reg.tempoFora ? ` <span class="tempo-fora">${escaparHtml(reg.tempoFora)}</span>` : '';
                     const nomeCell = nomeBase + tempoForaHtml;
-
                     const horaCell = adminLogado ?
                         `<span class="editable-cell" contenteditable="true" data-field="horario" data-index="${index}">${escaparHtml(reg.horario)}</span>` :
                         escaparHtml(reg.horario);
-
                     const acoesCell = adminLogado ?
-                        `<td><button class="btn-danger-text" data-remover="${index}" title="Remover permanentemente">🗑️</button></td>` :
-                        '';
-
+                        `<td><button class="btn-danger-text" data-remover="${index}" title="Remover permanentemente">🗑️</button></td>` : '';
                     return `<tr class="${classes}" data-index="${index}">
                         <td class="col-numero">${index + 1}</td>
                         <td>${nomeCell}</td>
@@ -1034,9 +1058,19 @@
                 });
             }
 
-            // ═══════════════════════════════════════════
-            // Operações no Firebase (substituem localStorage)
-            // ═══════════════════════════════════════════
+            function renderizarTabelaMotoboys() {
+                if (motoboys.length === 0) {
+                    tbodyMotoboys.innerHTML = '<tr class="empty-row"><td colspan="2"><span class="empty-icon">📭</span>Nenhum motoboy cadastrado.</td></tr>';
+                    return;
+                }
+                tbodyMotoboys.innerHTML = motoboys.map((m, index) => `
+                    <tr>
+                        <td>${escaparHtml(m.nome)}</td>
+                        <td><button class="btn-danger-text" data-remover-motoboy="${index}">🗑️</button></td>
+                    </tr>
+                `).join('');
+            }
+
             function salvarRegistrosNoFirebase() {
                 registrosRef.set(registros);
             }
@@ -1046,6 +1080,14 @@
                 const horario = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
                 const nomeTrim = nome.trim();
                 const nomeLower = nomeTrim.toLowerCase();
+
+                if (!adminLogado) {
+                    const nomeCadastrado = motoboys.some(m => m.nome.toLowerCase() === nomeLower);
+                    if (!nomeCadastrado) {
+                        mostrarToast('❌ Nome não autorizado. Apenas motoboys cadastrados pelo admin podem ser adicionados.', 'info');
+                        return;
+                    }
+                }
 
                 let tempoFora = '';
                 let checkoutEncontrado = -1;
@@ -1061,7 +1103,6 @@
                     const diffSegundos = Math.floor((Date.now() - checkout.timestamp) / 1000);
                     tempoFora = formatarTempo(diffSegundos);
 
-                    // Adiciona ao histórico
                     const novoHistorico = {
                         nome: checkout.nome,
                         saida: checkout.timestamp,
@@ -1072,7 +1113,6 @@
                     if (historico.length > 50) historico.shift();
                     historicoRef.set(historico);
 
-                    // Remove o checkout
                     checkouts.splice(checkoutEncontrado, 1);
                     checkoutsRef.set(checkouts);
 
@@ -1081,11 +1121,9 @@
                     mostrarToast(`✅ "${nomeTrim}" adicionado!`, 'success');
                 }
 
-                // Adiciona o registro
                 registros.push({ nome: nomeTrim, horario, riscado: false, tempoFora });
                 salvarRegistrosNoFirebase();
 
-                // Scroll para a última linha (após o Firebase atualizar a UI)
                 setTimeout(() => {
                     const ultimaLinha = tbody.lastElementChild;
                     if (ultimaLinha) ultimaLinha.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1122,9 +1160,38 @@
                 }
             }
 
-            // ═══════════════════════════════════════════
-            // Event Listeners da UI
-            // ═══════════════════════════════════════════
+            function adicionarMotoboyCadastrado(nome) {
+                const nomeTrim = nome.trim();
+                if (!nomeTrim) {
+                    mostrarToast('⚠️ Nome é obrigatório.', 'info');
+                    return;
+                }
+                motoboys.push({ nome: nomeTrim });
+                motoboysRef.set(motoboys);
+                mostrarToast(`✅ "${nomeTrim}" cadastrado com sucesso!`, 'success');
+                inputNomeMotoboy.value = '';
+                inputNomeMotoboy.focus();
+            }
+
+            function removerMotoboyCadastrado(index) {
+                const nome = motoboys[index].nome;
+                motoboys.splice(index, 1);
+                motoboysRef.set(motoboys);
+                mostrarToast(`🗑️ "${nome}" removido do cadastro.`, 'info');
+            }
+
+            // Evento do botão "Remover todos"
+            btnRemoverTodosMotoboys.addEventListener('click', () => {
+                if (motoboys.length === 0) {
+                    mostrarToast('📭 Nenhum motoboy cadastrado para remover.', 'info');
+                    return;
+                }
+                if (confirm('Tem certeza que deseja remover TODOS os motoboys cadastrados?')) {
+                    motoboysRef.set([]);
+                    mostrarToast('🗑️ Todos os motoboys foram removidos.', 'info');
+                }
+            });
+
             btnAdicionar.addEventListener('click', () => {
                 const nome = inputNome.value.trim();
                 if (!nome) { mostrarToast('⚠️ Digite um nome.', 'info'); return; }
@@ -1134,8 +1201,7 @@
             });
 
             inputNome.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') { e.preventDefault();
-                    btnAdicionar.click(); }
+                if (e.key === 'Enter') { e.preventDefault(); btnAdicionar.click(); }
             });
 
             tbody.addEventListener('click', (e) => {
@@ -1187,8 +1253,7 @@
                 if (!adminLogado) return;
                 const cell = e.target.closest('.editable-cell');
                 if (!cell) return;
-                if (e.key === 'Enter') { e.preventDefault();
-                    cell.blur(); }
+                if (e.key === 'Enter') { e.preventDefault(); cell.blur(); }
                 if (e.key === 'Escape') {
                     const index = parseInt(cell.getAttribute('data-index'), 10);
                     const field = cell.getAttribute('data-field');
@@ -1197,7 +1262,6 @@
                 }
             });
 
-            // Admin login/logout
             function login(password) {
                 if (password === 'regalo2026') {
                     adminLogado = true;
@@ -1234,7 +1298,6 @@
                 if (!e.target.closest('.lock-container')) lockPopover.classList.remove('active');
             });
 
-            // Modal Histórico
             function abrirHistorico() {
                 preencherTabelaHistorico();
                 modalHistorico.classList.add('active');
@@ -1255,23 +1318,53 @@
                 if (e.target === modalHistorico) fecharModal();
             });
 
-            // Exportar Excel
+            function abrirCadastroMotoboys() {
+                renderizarTabelaMotoboys();
+                modalMotoboys.classList.add('active');
+            }
+
+            function fecharModalMotoboys() {
+                modalMotoboys.classList.remove('active');
+            }
+
+            btnMotoboys.addEventListener('click', abrirCadastroMotoboys);
+            closeModalMotoboys.addEventListener('click', fecharModalMotoboys);
+            modalMotoboys.addEventListener('click', (e) => {
+                if (e.target === modalMotoboys) fecharModalMotoboys();
+            });
+
+            btnAdicionarMotoboy.addEventListener('click', () => {
+                const nome = inputNomeMotoboy.value;
+                adicionarMotoboyCadastrado(nome);
+            });
+
+            inputNomeMotoboy.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    btnAdicionarMotoboy.click();
+                }
+            });
+
+            tbodyMotoboys.addEventListener('click', (e) => {
+                const btnRem = e.target.closest('[data-remover-motoboy]');
+                if (btnRem) {
+                    const index = parseInt(btnRem.getAttribute('data-remover-motoboy'), 10);
+                    removerMotoboyCadastrado(index);
+                }
+            });
+
             btnExportar.addEventListener('click', () => {
                 const dadosExportar = obterHistoricoFiltrado();
                 if (dadosExportar.length === 0) {
                     mostrarToast('⚠️ Nenhum registro para exportar.', 'info');
                     return;
                 }
-                let html =
-                    '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
-                html +=
-                    '<head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Registro</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>';
+                let html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
+                html += '<head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Registro</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>';
                 html += '<body><table border="1">';
-                html +=
-                    '<tr style="background-color:#2ecc71;color:#ffffff;font-weight:bold;"><td>Nome</td><td>Saída</td><td>Retorno</td><td>Duração</td></tr>';
+                html += '<tr style="background-color:#2ecc71;color:#ffffff;font-weight:bold;"><td>Nome</td><td>Saída</td><td>Retorno</td><td>Duração</td></tr>';
                 dadosExportar.forEach(h => {
-                    html +=
-                        `<tr><td>${h.nome}</td><td>${formatarData(h.saida)}</td><td>${formatarData(h.retorno)}</td><td>${h.duracao}</td></tr>`;
+                    html += `<tr><td>${h.nome}</td><td>${formatarData(h.saida)}</td><td>${formatarData(h.retorno)}</td><td>${h.duracao}</td></tr>`;
                 });
                 html += '</table></body></html>';
                 const blob = new Blob(['\uFEFF' + html], { type: 'application/vnd.ms-excel;charset=utf-8' });
@@ -1286,9 +1379,7 @@
                 mostrarToast('📥 Arquivo Excel exportado com sucesso!', 'success');
             });
 
-            // Toast
             let toastTimeout;
-
             function mostrarToast(mensagem, tipo = 'info') {
                 const toast = document.getElementById('toast');
                 toast.textContent = mensagem;
@@ -1297,9 +1388,6 @@
                 toastTimeout = setTimeout(() => toast.classList.remove('show'), 2200);
             }
 
-            // ═══════════════════════════════════════════
-            // Senha de acesso ao site (local)
-            // ═══════════════════════════════════════════
             function checkSitePassword() {
                 const senha = sitePassword.value.trim();
                 if (senha === 'regalo2026') {
@@ -1323,9 +1411,6 @@
                 passwordOverlay.classList.add('hidden');
             }
 
-            // ═══════════════════════════════════════════
-            // Inicialização
-            // ═══════════════════════════════════════════
             atualizarUIAdmin();
             inputNome.focus();
         })();
