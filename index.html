@@ -596,7 +596,6 @@
                 </div>
             </div>
 
-            <!-- Apenas o cadeado de admin, sem contador de usuários -->
             <div class="lock-container">
                 <button class="lock-icon" id="lockIcon" title="Acesso restrito">🔒</button>
                 <div class="lock-popover" id="lockPopover">
@@ -693,18 +692,18 @@
     <div class="modal-overlay" id="modalFaltantes">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>🔍 Motoboys cadastrados que ainda não estão na lista</h3>
+                <h3>🔍 Cadastrados ausentes na lista</h3>
                 <button class="modal-close" id="closeModalFaltantes">✕</button>
             </div>
             <div class="table-wrapper">
                 <table id="tabela-faltantes">
                     <thead>
-                        <tr><th>Nome</th></tr>
+                        <tr><th>Nome</th><th>Tempo fora</th></tr>
                     </thead>
                     <tbody id="tbody-faltantes"></tbody>
                 </table>
             </div>
-            <p style="font-size:0.7rem;color:var(--text-muted);margin-top:8px;">Esses motoboys estão cadastrados mas ainda não foram registrados na lista atual.</p>
+            <p style="font-size:0.7rem;color:var(--text-muted);margin-top:8px;">Exibe os cadastrados que não estão na lista e o tempo desde que saíram (quando aplicável).</p>
         </div>
     </div>
 
@@ -804,6 +803,9 @@
             checkoutsRef.on('value', (snapshot) => {
                 const dados = snapshot.val();
                 checkouts = dados ? Object.values(dados) : [];
+                if (modalFaltantes.classList.contains('active')) {
+                    preencherTabelaFaltantes();
+                }
             });
 
             historicoRef.on('value', (snapshot) => {
@@ -937,22 +939,32 @@
                 `).join('');
             }
 
-            function obterNomesFaltantes() {
-                const nomesRegistrados = registros.map(r => r.nome.toLowerCase());
-                return motoboys.filter(m => !nomesRegistrados.includes(m.nome.toLowerCase()));
-            }
-
+            // Função atualizada para obter faltantes com tempo fora
             function preencherTabelaFaltantes() {
-                const faltantes = obterNomesFaltantes();
+                const nomesRegistrados = registros.map(r => r.nome.toLowerCase());
+                const faltantes = motoboys.filter(m => !nomesRegistrados.includes(m.nome.toLowerCase()));
+
                 if (faltantes.length === 0) {
-                    tbodyFaltantes.innerHTML = '<tr class="empty-row"><td>✅ Todos os cadastrados já estão na lista!</td></tr>';
-                } else {
-                    tbodyFaltantes.innerHTML = faltantes.map(m => `
+                    tbodyFaltantes.innerHTML = '<tr class="empty-row"><td colspan="2">✅ Todos os cadastrados já estão na lista!</td></tr>';
+                    return;
+                }
+
+                tbodyFaltantes.innerHTML = faltantes.map(m => {
+                    const nomeLower = m.nome.toLowerCase();
+                    // Procura checkout ativo para este nome
+                    const checkout = checkouts.find(c => c.nome.toLowerCase() === nomeLower);
+                    let tempoFora = '-';
+                    if (checkout) {
+                        const diffSegundos = Math.floor((Date.now() - checkout.timestamp) / 1000);
+                        tempoFora = formatarTempo(diffSegundos);
+                    }
+                    return `
                         <tr>
                             <td>${escaparHtml(m.nome)}</td>
+                            <td>${tempoFora}</td>
                         </tr>
-                    `).join('');
-                }
+                    `;
+                }).join('');
             }
 
             function salvarRegistrosNoFirebase() {
