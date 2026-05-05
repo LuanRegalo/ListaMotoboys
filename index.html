@@ -729,6 +729,7 @@
             const checkoutsRef = db.ref('checkouts');
             const historicoRef = db.ref('historico');
             const motoboysRef = db.ref('motoboys');
+            const configRef = db.ref('config');  // nó para controle de reset diário
 
             let registros = [];
             let checkouts = [];
@@ -736,6 +737,7 @@
             let motoboys = [];
             let adminLogado = sessionStorage.getItem('admin_logado') === 'true';
 
+            // Função que determina a data de corte considerando 2h da manhã
             function obterDataCorte() {
                 const agora = new Date();
                 if (agora.getHours() < 2) {
@@ -744,17 +746,23 @@
                 return agora.toISOString().split('T')[0];
             }
 
+            // Reset diário usando o Firebase como fonte de verdade
             function realizarResetDiarioSeNecessario() {
                 const dataHoje = obterDataCorte();
-                const ultimaLimpeza = localStorage.getItem('ultimaLimpezaDiaria');
-                if (ultimaLimpeza !== dataHoje) {
-                    registrosRef.set([]);
-                    checkoutsRef.set([]);
-                    localStorage.setItem('ultimaLimpezaDiaria', dataHoje);
-                    console.log('Reset diário executado para a data:', dataHoje);
-                }
+                configRef.child('ultimaLimpezaDiaria').once('value').then(snap => {
+                    const ultimaLimpeza = snap.val();
+                    if (ultimaLimpeza !== dataHoje) {
+                        // Zera as listas e os checkouts
+                        registrosRef.set([]);
+                        checkoutsRef.set([]);
+                        // Registra a nova data no Firebase
+                        configRef.child('ultimaLimpezaDiaria').set(dataHoje);
+                        console.log('Reset diário executado para:', dataHoje);
+                    }
+                });
             }
 
+            // Elementos do DOM
             const tbody = document.getElementById('tbody-horarios');
             const inputNome = document.getElementById('input-nome');
             const btnAdicionar = document.getElementById('btn-adicionar');
@@ -785,6 +793,7 @@
             const closeModalFaltantes = document.getElementById('closeModalFaltantes');
             const tbodyFaltantes = document.getElementById('tbody-faltantes');
 
+            // Listeners do Firebase
             registrosRef.on('value', (snapshot) => {
                 const dados = snapshot.val();
                 registros = dados ? Object.values(dados) : [];
@@ -827,9 +836,11 @@
                 }
             });
 
+            // Executa o reset ao carregar e a cada 60s (verificação leve)
             realizarResetDiarioSeNecessario();
             setInterval(realizarResetDiarioSeNecessario, 60000);
 
+            // Utilitários
             function escaparHtml(texto) {
                 const div = document.createElement('div');
                 div.textContent = texto;
@@ -939,7 +950,6 @@
                 `).join('');
             }
 
-            // Função atualizada para obter faltantes com tempo fora
             function preencherTabelaFaltantes() {
                 const nomesRegistrados = registros.map(r => r.nome.toLowerCase());
                 const faltantes = motoboys.filter(m => !nomesRegistrados.includes(m.nome.toLowerCase()));
@@ -951,7 +961,6 @@
 
                 tbodyFaltantes.innerHTML = faltantes.map(m => {
                     const nomeLower = m.nome.toLowerCase();
-                    // Procura checkout ativo para este nome
                     const checkout = checkouts.find(c => c.nome.toLowerCase() === nomeLower);
                     let tempoFora = '-';
                     if (checkout) {
@@ -1076,6 +1085,7 @@
                 mostrarToast(`🗑️ "${nome}" removido do cadastro.`, 'info');
             }
 
+            // Event listeners
             btnRemoverTodosMotoboys.addEventListener('click', () => {
                 if (motoboys.length === 0) {
                     mostrarToast('📭 Nenhum motoboy cadastrado para remover.', 'info');
@@ -1294,7 +1304,7 @@
                 toastTimeout = setTimeout(() => toast.classList.remove('show'), 2200);
             }
 
-            // Inicialização
+            // Inicializa UI
             atualizarUIAdmin();
             inputNome.focus();
         })();
