@@ -306,7 +306,6 @@
             color: var(--red-light);
             background: rgba(231, 76, 60, 0.1);
         }
-        /* Botões de reordenação (admin) */
         .btn-arrow {
             background: transparent;
             border: 1px solid transparent;
@@ -377,14 +376,7 @@
             font-variant-numeric: tabular-nums;
             font-feature-settings: "tnum";
         }
-        tr.row-riscado td:nth-child(2),
-        tr.row-riscado td:nth-child(3) {
-            text-decoration: line-through;
-            color: #7a8a7d;
-        }
-        tr.row-riscado td.col-numero {
-            color: #5a6a5d;
-        }
+        /* Removida a classe row-riscado, mas mantida para compatibilidade */
         .tempo-fora {
             font-size: 0.75rem;
             background: rgba(255, 193, 7, 0.15);
@@ -627,7 +619,6 @@
             </div>
         </div>
 
-        <!-- Botões do admin, incluindo o novo Reset Geral -->
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom: 10px;">
             <button class="btn btn-outline" id="btnMotoboys" style="display:none;">👥 Cadastro</button>
             <button class="btn btn-outline" id="btnFaltantes" style="display:none;">🔍 Faltantes</button>
@@ -652,7 +643,7 @@
                             <th>#</th>
                             <th>Nome</th>
                             <th>Horário de Registro</th>
-                            <th>Check</th>
+                            <th>Saída</th>
                             <th id="th-acoes" style="display:none;">Ações</th>
                         </tr>
                     </thead>
@@ -752,7 +743,6 @@
             const checkoutsRef = db.ref('checkouts');
             const historicoRef = db.ref('historico');
             const motoboysRef = db.ref('motoboys');
-            // configRef removido, sem reset automático
 
             let registros = [];
             let checkouts = [];
@@ -835,8 +825,6 @@
                 }
             });
 
-            // Removido o reset automático diário
-
             // Utilitários
             function escaparHtml(texto) {
                 const div = document.createElement('div');
@@ -887,7 +875,6 @@
                     return;
                 }
                 tbody.innerHTML = registros.map((reg, index) => {
-                    const classes = reg.riscado ? 'row-riscado' : '';
                     const nomeBase = adminLogado ?
                         `<span class="editable-cell" contenteditable="true" data-field="nome" data-index="${index}">${escaparHtml(reg.nome)}</span>` :
                         escaparHtml(reg.nome);
@@ -902,7 +889,7 @@
                             <button class="btn-arrow" data-mover-baixo="${index}" title="Mover para baixo" ${index === registros.length - 1 ? 'disabled' : ''}>▼</button>
                             <button class="btn-danger-text" data-remover="${index}" title="Remover permanentemente">🗑️</button>
                         </td>` : '';
-                    return `<tr class="${classes}" data-index="${index}">
+                    return `<tr data-index="${index}">
                         <td class="col-numero">${index + 1}</td>
                         <td>${nomeCell}</td>
                         <td class="col-horario">${horaCell}</td>
@@ -983,7 +970,6 @@
                 registrosRef.set(registros);
             }
 
-            // Funções de reordenação (admin)
             function moverCima(index) {
                 if (index <= 0) return;
                 [registros[index - 1], registros[index]] = [registros[index], registros[index - 1]];
@@ -1070,11 +1056,6 @@
                 mostrarToast(`🗑️ "${nome}" removido permanentemente.`, 'info');
             }
 
-            function toggleRiscado(index) {
-                registros[index].riscado = !registros[index].riscado;
-                salvarRegistrosNoFirebase();
-            }
-
             function editarCelula(index, field, novoValor) {
                 if (novoValor && registros[index][field] !== novoValor) {
                     registros[index][field] = novoValor;
@@ -1103,7 +1084,6 @@
                 mostrarToast(`🗑️ "${nome}" removido do cadastro.`, 'info');
             }
 
-            // NOVO: Reset geral (admin)
             function resetGeral() {
                 registrosRef.set([]);
                 checkoutsRef.set([]);
@@ -1176,9 +1156,6 @@
                     return;
                 }
 
-                const tr = e.target.closest('tr');
-                if (!tr || tr.classList.contains('empty-row')) return;
-
                 const btnRem = e.target.closest('[data-remover]');
                 if (btnRem && adminLogado) {
                     const index = parseInt(btnRem.getAttribute('data-remover'), 10);
@@ -1186,12 +1163,7 @@
                     return;
                 }
 
-                if (adminLogado && e.target.closest('.editable-cell')) return;
-
-                const index = parseInt(tr.getAttribute('data-index'), 10);
-                if (!isNaN(index) && registros[index]) {
-                    toggleRiscado(index);
-                }
+                // Clique na linha (fora dos botões) agora não faz nada – removida a chamada a toggleRiscado
             });
 
             tbody.addEventListener('focusout', (e) => {
