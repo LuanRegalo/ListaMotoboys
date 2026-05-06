@@ -306,6 +306,27 @@
             color: var(--red-light);
             background: rgba(231, 76, 60, 0.1);
         }
+        /* Botões de reordenação (admin) */
+        .btn-arrow {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            padding: 2px 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.15s;
+            line-height: 1;
+        }
+        .btn-arrow:hover:not(:disabled) {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--border);
+        }
+        .btn-arrow:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
 
         .table-wrapper {
             overflow-x: auto;
@@ -606,10 +627,12 @@
             </div>
         </div>
 
+        <!-- Botões do admin, incluindo o novo Reset Geral -->
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom: 10px;">
             <button class="btn btn-outline" id="btnMotoboys" style="display:none;">👥 Cadastro</button>
             <button class="btn btn-outline" id="btnFaltantes" style="display:none;">🔍 Faltantes</button>
             <button class="btn btn-outline" id="btnHistorico" style="display:none;">📋 Histórico</button>
+            <button class="btn btn-outline" id="btnResetGeral" style="display:none;" title="Limpar lista, cadastros e cronômetros">🔄 Reset Geral</button>
             <button class="btn btn-outline" id="btnSairVisivel" style="display:none;" title="Sair do modo admin">🚪 Sair</button>
         </div>
 
@@ -729,38 +752,13 @@
             const checkoutsRef = db.ref('checkouts');
             const historicoRef = db.ref('historico');
             const motoboysRef = db.ref('motoboys');
-            const configRef = db.ref('config');  // nó para controle de reset diário
+            // configRef removido, sem reset automático
 
             let registros = [];
             let checkouts = [];
             let historico = [];
             let motoboys = [];
             let adminLogado = sessionStorage.getItem('admin_logado') === 'true';
-
-            // Função que determina a data de corte considerando 2h da manhã
-            function obterDataCorte() {
-                const agora = new Date();
-                if (agora.getHours() < 2) {
-                    agora.setDate(agora.getDate() - 1);
-                }
-                return agora.toISOString().split('T')[0];
-            }
-
-            // Reset diário usando o Firebase como fonte de verdade
-            function realizarResetDiarioSeNecessario() {
-                const dataHoje = obterDataCorte();
-                configRef.child('ultimaLimpezaDiaria').once('value').then(snap => {
-                    const ultimaLimpeza = snap.val();
-                    if (ultimaLimpeza !== dataHoje) {
-                        // Zera as listas e os checkouts
-                        registrosRef.set([]);
-                        checkoutsRef.set([]);
-                        // Registra a nova data no Firebase
-                        configRef.child('ultimaLimpezaDiaria').set(dataHoje);
-                        console.log('Reset diário executado para:', dataHoje);
-                    }
-                });
-            }
 
             // Elementos do DOM
             const tbody = document.getElementById('tbody-horarios');
@@ -774,6 +772,7 @@
             const btnHistorico = document.getElementById('btnHistorico');
             const btnMotoboys = document.getElementById('btnMotoboys');
             const btnFaltantes = document.getElementById('btnFaltantes');
+            const btnResetGeral = document.getElementById('btnResetGeral');
             const btnSairVisivel = document.getElementById('btnSairVisivel');
             const thAcoes = document.getElementById('th-acoes');
             const modalHistorico = document.getElementById('modalHistorico');
@@ -836,9 +835,7 @@
                 }
             });
 
-            // Executa o reset ao carregar e a cada 60s (verificação leve)
-            realizarResetDiarioSeNecessario();
-            setInterval(realizarResetDiarioSeNecessario, 60000);
+            // Removido o reset automático diário
 
             // Utilitários
             function escaparHtml(texto) {
@@ -868,6 +865,7 @@
                     btnHistorico.style.display = 'inline-flex';
                     btnMotoboys.style.display = 'inline-flex';
                     btnFaltantes.style.display = 'inline-flex';
+                    btnResetGeral.style.display = 'inline-flex';
                     btnSairVisivel.style.display = 'inline-flex';
                 } else {
                     lockIcon.textContent = '🔒';
@@ -877,6 +875,7 @@
                     btnHistorico.style.display = 'none';
                     btnMotoboys.style.display = 'none';
                     btnFaltantes.style.display = 'none';
+                    btnResetGeral.style.display = 'none';
                     btnSairVisivel.style.display = 'none';
                 }
             }
@@ -898,7 +897,11 @@
                         `<span class="editable-cell" contenteditable="true" data-field="horario" data-index="${index}">${escaparHtml(reg.horario)}</span>` :
                         escaparHtml(reg.horario);
                     const acoesCell = adminLogado ?
-                        `<td><button class="btn-danger-text" data-remover="${index}" title="Remover permanentemente">🗑️</button></td>` : '';
+                        `<td style="white-space: nowrap;">
+                            <button class="btn-arrow" data-mover-cima="${index}" title="Mover para cima" ${index === 0 ? 'disabled' : ''}>▲</button>
+                            <button class="btn-arrow" data-mover-baixo="${index}" title="Mover para baixo" ${index === registros.length - 1 ? 'disabled' : ''}>▼</button>
+                            <button class="btn-danger-text" data-remover="${index}" title="Remover permanentemente">🗑️</button>
+                        </td>` : '';
                     return `<tr class="${classes}" data-index="${index}">
                         <td class="col-numero">${index + 1}</td>
                         <td>${nomeCell}</td>
@@ -978,6 +981,21 @@
 
             function salvarRegistrosNoFirebase() {
                 registrosRef.set(registros);
+            }
+
+            // Funções de reordenação (admin)
+            function moverCima(index) {
+                if (index <= 0) return;
+                [registros[index - 1], registros[index]] = [registros[index], registros[index - 1]];
+                salvarRegistrosNoFirebase();
+                mostrarToast('↕️ Ordem alterada.', 'info');
+            }
+
+            function moverBaixo(index) {
+                if (index >= registros.length - 1) return;
+                [registros[index], registros[index + 1]] = [registros[index + 1], registros[index]];
+                salvarRegistrosNoFirebase();
+                mostrarToast('↕️ Ordem alterada.', 'info');
             }
 
             function adicionarRegistro(nome) {
@@ -1085,7 +1103,21 @@
                 mostrarToast(`🗑️ "${nome}" removido do cadastro.`, 'info');
             }
 
+            // NOVO: Reset geral (admin)
+            function resetGeral() {
+                registrosRef.set([]);
+                checkoutsRef.set([]);
+                motoboysRef.set([]);
+                mostrarToast('🔄 Reset geral realizado: lista, cadastros e cronômetros zerados.', 'success');
+            }
+
             // Event listeners
+            btnResetGeral.addEventListener('click', () => {
+                if (confirm('Tem certeza que deseja RESETAR TUDO?\n\nIsso apagará:\n- Todos os nomes da lista\n- Todos os motoboys cadastrados\n- Todos os cronômetros de intervalo\n\nEsta ação não pode ser desfeita.')) {
+                    resetGeral();
+                }
+            });
+
             btnRemoverTodosMotoboys.addEventListener('click', () => {
                 if (motoboys.length === 0) {
                     mostrarToast('📭 Nenhum motoboy cadastrado para remover.', 'info');
@@ -1121,6 +1153,21 @@
             });
 
             tbody.addEventListener('click', (e) => {
+                const btnCima = e.target.closest('[data-mover-cima]');
+                if (btnCima && adminLogado) {
+                    e.stopPropagation();
+                    const index = parseInt(btnCima.getAttribute('data-mover-cima'), 10);
+                    moverCima(index);
+                    return;
+                }
+                const btnBaixo = e.target.closest('[data-mover-baixo]');
+                if (btnBaixo && adminLogado) {
+                    e.stopPropagation();
+                    const index = parseInt(btnBaixo.getAttribute('data-mover-baixo'), 10);
+                    moverBaixo(index);
+                    return;
+                }
+
                 const checkSquare = e.target.closest('.check-square');
                 if (checkSquare) {
                     e.stopPropagation();
