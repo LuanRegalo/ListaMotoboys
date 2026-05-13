@@ -376,7 +376,6 @@
             font-variant-numeric: tabular-nums;
             font-feature-settings: "tnum";
         }
-        /* Removida a classe row-riscado, mas mantida para compatibilidade */
         .tempo-fora {
             font-size: 0.75rem;
             background: rgba(255, 193, 7, 0.15);
@@ -623,7 +622,8 @@
             <button class="btn btn-outline" id="btnMotoboys" style="display:none;">👥 Cadastro</button>
             <button class="btn btn-outline" id="btnFaltantes" style="display:none;">🔍 Faltantes</button>
             <button class="btn btn-outline" id="btnHistorico" style="display:none;">📋 Histórico</button>
-            <button class="btn btn-outline" id="btnResetGeral" style="display:none;" title="Limpar lista, cadastros e cronômetros">🔄 Reset Geral</button>
+            <button class="btn btn-outline" id="btnResetGeral" style="display:none;" title="Zerar cronômetros e limpar tempos exibidos">⏱️ Zerar Cronômetros</button>
+            <button class="btn btn-outline" id="btnLimparLista" style="display:none;" title="Limpar nomes da lista mantendo cadastros e cronômetros">🗑️ Limpar Lista</button>
             <button class="btn btn-outline" id="btnSairVisivel" style="display:none;" title="Sair do modo admin">🚪 Sair</button>
         </div>
 
@@ -763,6 +763,7 @@
             const btnMotoboys = document.getElementById('btnMotoboys');
             const btnFaltantes = document.getElementById('btnFaltantes');
             const btnResetGeral = document.getElementById('btnResetGeral');
+            const btnLimparLista = document.getElementById('btnLimparLista');
             const btnSairVisivel = document.getElementById('btnSairVisivel');
             const thAcoes = document.getElementById('th-acoes');
             const modalHistorico = document.getElementById('modalHistorico');
@@ -817,6 +818,8 @@
             motoboysRef.on('value', (snapshot) => {
                 const dados = snapshot.val();
                 motoboys = dados ? Object.values(dados) : [];
+                // Ordena alfabeticamente (A-Z) após carregar
+                motoboys.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
                 if (modalMotoboys.classList.contains('active')) {
                     renderizarTabelaMotoboys();
                 }
@@ -854,6 +857,7 @@
                     btnMotoboys.style.display = 'inline-flex';
                     btnFaltantes.style.display = 'inline-flex';
                     btnResetGeral.style.display = 'inline-flex';
+                    btnLimparLista.style.display = 'inline-flex';
                     btnSairVisivel.style.display = 'inline-flex';
                 } else {
                     lockIcon.textContent = '🔒';
@@ -864,6 +868,7 @@
                     btnMotoboys.style.display = 'none';
                     btnFaltantes.style.display = 'none';
                     btnResetGeral.style.display = 'none';
+                    btnLimparLista.style.display = 'none';
                     btnSairVisivel.style.display = 'none';
                 }
             }
@@ -932,6 +937,7 @@
                     tbodyMotoboys.innerHTML = '<tr class="empty-row"><td colspan="2"><span class="empty-icon">📭</span>Nenhum motoboy cadastrado.</td></tr>';
                     return;
                 }
+                // A lista já está ordenada alfabeticamente
                 tbodyMotoboys.innerHTML = motoboys.map((m, index) => `
                     <tr>
                         <td>${escaparHtml(m.nome)}</td>
@@ -1084,17 +1090,34 @@
                 mostrarToast(`🗑️ "${nome}" removido do cadastro.`, 'info');
             }
 
-            function resetGeral() {
-                registrosRef.set([]);
+            function zerarCronometros() {
+                // Limpa os checkouts (cronômetros)
                 checkoutsRef.set([]);
-                motoboysRef.set([]);
-                mostrarToast('🔄 Reset geral realizado: lista, cadastros e cronômetros zerados.', 'success');
+                // Remove a indicação de tempoFora de todos os registros
+                registros.forEach(r => r.tempoFora = '');
+                registrosRef.set(registros);
+                mostrarToast('⏱️ Cronômetros zerados e tempos limpos.', 'success');
+            }
+
+            function limparListaRegistros() {
+                registrosRef.set([]);
+                mostrarToast('🗑️ Lista de nomes limpa. Cadastros e cronômetros mantidos.', 'info');
             }
 
             // Event listeners
             btnResetGeral.addEventListener('click', () => {
-                if (confirm('Tem certeza que deseja RESETAR TUDO?\n\nIsso apagará:\n- Todos os nomes da lista\n- Todos os motoboys cadastrados\n- Todos os cronômetros de intervalo\n\nEsta ação não pode ser desfeita.')) {
-                    resetGeral();
+                if (confirm('Tem certeza que deseja ZERAR TODOS OS CRONÔMETROS?\n\nIsso apagará as marcações de tempo fora e limpará os tempos exibidos ao lado dos nomes.\n\nA lista de nomes e os cadastros serão mantidos.')) {
+                    zerarCronometros();
+                }
+            });
+
+            btnLimparLista.addEventListener('click', () => {
+                if (registros.length === 0) {
+                    mostrarToast('📭 A lista já está vazia.', 'info');
+                    return;
+                }
+                if (confirm('Tem certeza que deseja LIMPAR TODOS OS NOMES DA LISTA?\n\nOs cronômetros de intervalo e os cadastros de motoboys NÃO serão afetados.')) {
+                    limparListaRegistros();
                 }
             });
 
@@ -1162,8 +1185,6 @@
                     removerPermanente(index);
                     return;
                 }
-
-                // Clique na linha (fora dos botões) agora não faz nada – removida a chamada a toggleRiscado
             });
 
             tbody.addEventListener('focusout', (e) => {
