@@ -674,7 +674,7 @@
                     <tbody id="tbody-historico"></tbody>
                 </table>
             </div>
-            <p style="font-size:0.7rem;color:var(--text-muted);margin-top:8px;">Mostrando os últimos 50 registros. Use o filtro por data para refinar.</p>
+            <p style="font-size:0.7rem;color:var(--text-muted);margin-top:8px;">Exibindo todos os registros (sem limite). Use o filtro por data para refinar.</p>
         </div>
     </div>
 
@@ -893,7 +893,7 @@
                             <button class="btn-arrow" data-mover-cima="${index}" title="Mover para cima" ${index === 0 ? 'disabled' : ''}>▲</button>
                             <button class="btn-arrow" data-mover-baixo="${index}" title="Mover para baixo" ${index === registros.length - 1 ? 'disabled' : ''}>▼</button>
                             <button class="btn-danger-text" data-remover="${index}" title="Remover permanentemente">🗑️</button>
-                        </td>` : '';
+                         </td>` : '';
                     return `<tr data-index="${index}">
                         <td class="col-numero">${index + 1}</td>
                         <td>${nomeCell}</td>
@@ -1025,7 +1025,7 @@
                         duracao: tempoFora
                     };
                     historico.push(novoHistorico);
-                    if (historico.length > 50) historico.shift();
+                    // 🔁 Removido o limite de 50 registros – agora armazena todo o histórico
                     historicoRef.set(historico);
 
                     checkouts.splice(checkoutEncontrado, 1);
