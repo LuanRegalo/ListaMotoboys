@@ -622,6 +622,7 @@
             <button class="btn btn-outline" id="btnMotoboys" style="display:none;">👥 Cadastro</button>
             <button class="btn btn-outline" id="btnFaltantes" style="display:none;">🔍 Faltantes</button>
             <button class="btn btn-outline" id="btnHistorico" style="display:none;">📋 Histórico</button>
+            <button class="btn btn-outline" id="btnPrimeiraVez" style="display:none;">🕒 Primeira Vez</button>
             <button class="btn btn-outline" id="btnResetGeral" style="display:none;" title="Zerar cronômetros e limpar tempos exibidos">⏱️ Zerar Cronômetros</button>
             <button class="btn btn-outline" id="btnLimparLista" style="display:none;" title="Limpar nomes da lista mantendo cadastros e cronômetros">🗑️ Limpar Lista</button>
             <button class="btn btn-outline" id="btnSairVisivel" style="display:none;" title="Sair do modo admin">🚪 Sair</button>
@@ -721,6 +722,30 @@
         </div>
     </div>
 
+    <!-- Modal Primeira Vez (admin) -->
+    <div class="modal-overlay" id="modalPrimeiraVez">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🕒 Primeira vez que cada motoboy foi adicionado</h3>
+                <div class="modal-header-right">
+                    <input type="date" id="filtroDataPrimeira" class="filter-date" title="Filtrar por data">
+                    <button class="btn-export" id="btnExportarPrimeira" title="Exportar para Excel">📥 Exportar Excel</button>
+                    <button class="btn btn-outline" id="btnLimparPrimeiros" style="font-size:0.78rem; padding:4px 10px;">🗑️ Limpar tudo</button>
+                    <button class="modal-close" id="closeModalPrimeiraVez">✕</button>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table id="tabela-primeira-vez">
+                    <thead>
+                        <tr><th>Nome</th><th>Data/Hora da primeira adição</th></tr>
+                    </thead>
+                    <tbody id="tbody-primeira-vez"></tbody>
+                </table>
+            </div>
+            <p style="font-size:0.7rem;color:var(--text-muted);margin-top:8px;">Registra automaticamente a primeira vez que cada nome é adicionado à lista principal.</p>
+        </div>
+    </div>
+
     <div class="toast" id="toast"></div>
 
     <script>
@@ -743,11 +768,13 @@
             const checkoutsRef = db.ref('checkouts');
             const historicoRef = db.ref('historico');
             const motoboysRef = db.ref('motoboys');
+            const primeirosRef = db.ref('primeiros'); // novo nó
 
             let registros = [];
             let checkouts = [];
             let historico = [];
             let motoboys = [];
+            let primeiros = {}; // chave: nomeLower, valor: { nome, timestamp }
             let adminLogado = sessionStorage.getItem('admin_logado') === 'true';
 
             // Elementos do DOM
@@ -762,16 +789,20 @@
             const btnHistorico = document.getElementById('btnHistorico');
             const btnMotoboys = document.getElementById('btnMotoboys');
             const btnFaltantes = document.getElementById('btnFaltantes');
+            const btnPrimeiraVez = document.getElementById('btnPrimeiraVez');
             const btnResetGeral = document.getElementById('btnResetGeral');
             const btnLimparLista = document.getElementById('btnLimparLista');
             const btnSairVisivel = document.getElementById('btnSairVisivel');
             const thAcoes = document.getElementById('th-acoes');
+
+            // Modal histórico
             const modalHistorico = document.getElementById('modalHistorico');
             const closeModal = document.getElementById('closeModal');
             const tbodyHistorico = document.getElementById('tbody-historico');
             const btnExportar = document.getElementById('btnExportar');
             const filtroData = document.getElementById('filtroData');
 
+            // Modal cadastro motoboys
             const modalMotoboys = document.getElementById('modalMotoboys');
             const closeModalMotoboys = document.getElementById('closeModalMotoboys');
             const inputNomeMotoboy = document.getElementById('input-nome-motoboy');
@@ -779,9 +810,18 @@
             const btnRemoverTodosMotoboys = document.getElementById('btn-remover-todos-motoboys');
             const tbodyMotoboys = document.getElementById('tbody-motoboys');
 
+            // Modal faltantes
             const modalFaltantes = document.getElementById('modalFaltantes');
             const closeModalFaltantes = document.getElementById('closeModalFaltantes');
             const tbodyFaltantes = document.getElementById('tbody-faltantes');
+
+            // Modal primeira vez
+            const modalPrimeiraVez = document.getElementById('modalPrimeiraVez');
+            const closeModalPrimeiraVez = document.getElementById('closeModalPrimeiraVez');
+            const tbodyPrimeiraVez = document.getElementById('tbody-primeira-vez');
+            const filtroDataPrimeira = document.getElementById('filtroDataPrimeira');
+            const btnExportarPrimeira = document.getElementById('btnExportarPrimeira');
+            const btnLimparPrimeiros = document.getElementById('btnLimparPrimeiros');
 
             // Listeners do Firebase
             registrosRef.on('value', (snapshot) => {
@@ -818,13 +858,19 @@
             motoboysRef.on('value', (snapshot) => {
                 const dados = snapshot.val();
                 motoboys = dados ? Object.values(dados) : [];
-                // Ordena alfabeticamente (A-Z) após carregar
                 motoboys.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
                 if (modalMotoboys.classList.contains('active')) {
                     renderizarTabelaMotoboys();
                 }
                 if (modalFaltantes.classList.contains('active')) {
                     preencherTabelaFaltantes();
+                }
+            });
+
+            primeirosRef.on('value', (snapshot) => {
+                primeiros = snapshot.val() || {};
+                if (modalPrimeiraVez.classList.contains('active')) {
+                    preencherTabelaPrimeiraVez();
                 }
             });
 
@@ -856,6 +902,7 @@
                     btnHistorico.style.display = 'inline-flex';
                     btnMotoboys.style.display = 'inline-flex';
                     btnFaltantes.style.display = 'inline-flex';
+                    btnPrimeiraVez.style.display = 'inline-flex';
                     btnResetGeral.style.display = 'inline-flex';
                     btnLimparLista.style.display = 'inline-flex';
                     btnSairVisivel.style.display = 'inline-flex';
@@ -867,6 +914,7 @@
                     btnHistorico.style.display = 'none';
                     btnMotoboys.style.display = 'none';
                     btnFaltantes.style.display = 'none';
+                    btnPrimeiraVez.style.display = 'none';
                     btnResetGeral.style.display = 'none';
                     btnLimparLista.style.display = 'none';
                     btnSairVisivel.style.display = 'none';
@@ -937,7 +985,6 @@
                     tbodyMotoboys.innerHTML = '<tr class="empty-row"><td colspan="2"><span class="empty-icon">📭</span>Nenhum motoboy cadastrado.</td></tr>';
                     return;
                 }
-                // A lista já está ordenada alfabeticamente
                 tbodyMotoboys.innerHTML = motoboys.map((m, index) => `
                     <tr>
                         <td>${escaparHtml(m.nome)}</td>
@@ -972,6 +1019,35 @@
                 }).join('');
             }
 
+            function preencherTabelaPrimeiraVez() {
+                const dataFiltro = filtroDataPrimeira.value;
+                let lista = Object.values(primeiros);
+                
+                if (dataFiltro) {
+                    const inicio = new Date(dataFiltro + 'T00:00:00');
+                    const fim = new Date(dataFiltro + 'T23:59:59');
+                    lista = lista.filter(item => {
+                        const ts = new Date(item.timestamp);
+                        return ts >= inicio && ts <= fim;
+                    });
+                }
+
+                // Ordenar por timestamp decrescente (mais recente primeiro)
+                lista.sort((a, b) => b.timestamp - a.timestamp);
+
+                if (lista.length === 0) {
+                    tbodyPrimeiraVez.innerHTML = '<tr class="empty-row"><td colspan="2">Nenhum registro de primeira vez encontrado.</td></tr>';
+                    return;
+                }
+
+                tbodyPrimeiraVez.innerHTML = lista.map(item => `
+                    <tr>
+                        <td>${escaparHtml(item.nome)}</td>
+                        <td>${formatarData(item.timestamp)}</td>
+                    </tr>
+                `).join('');
+            }
+
             function salvarRegistrosNoFirebase() {
                 registrosRef.set(registros);
             }
@@ -1004,6 +1080,14 @@
                     }
                 }
 
+                // Verifica/registra primeira vez
+                if (!primeiros[nomeLower]) {
+                    primeirosRef.child(nomeLower).set({
+                        nome: nomeTrim,
+                        timestamp: Date.now()
+                    });
+                }
+
                 let tempoFora = '';
                 let checkoutEncontrado = -1;
                 for (let i = checkouts.length - 1; i >= 0; i--) {
@@ -1025,7 +1109,6 @@
                         duracao: tempoFora
                     };
                     historico.push(novoHistorico);
-                    // 🔁 Removido o limite de 50 registros – agora armazena todo o histórico
                     historicoRef.set(historico);
 
                     checkouts.splice(checkoutEncontrado, 1);
@@ -1091,9 +1174,7 @@
             }
 
             function zerarCronometros() {
-                // Limpa os checkouts (cronômetros)
                 checkoutsRef.set([]);
-                // Remove a indicação de tempoFora de todos os registros
                 registros.forEach(r => r.tempoFora = '');
                 registrosRef.set(registros);
                 mostrarToast('⏱️ Cronômetros zerados e tempos limpos.', 'success');
@@ -1333,6 +1414,74 @@
                 document.body.removeChild(link);
                 URL.revokeObjectURL(url);
                 mostrarToast('📥 Arquivo Excel exportado com sucesso!', 'success');
+            });
+
+            // --- Modal Primeira Vez ---
+            function abrirPrimeiraVez() {
+                preencherTabelaPrimeiraVez();
+                modalPrimeiraVez.classList.add('active');
+            }
+
+            function fecharModalPrimeiraVez() {
+                modalPrimeiraVez.classList.remove('active');
+                filtroDataPrimeira.value = '';
+            }
+
+            btnPrimeiraVez.addEventListener('click', abrirPrimeiraVez);
+            closeModalPrimeiraVez.addEventListener('click', fecharModalPrimeiraVez);
+            modalPrimeiraVez.addEventListener('click', (e) => {
+                if (e.target === modalPrimeiraVez) fecharModalPrimeiraVez();
+            });
+
+            filtroDataPrimeira.addEventListener('change', () => {
+                if (modalPrimeiraVez.classList.contains('active')) preencherTabelaPrimeiraVez();
+            });
+
+            btnExportarPrimeira.addEventListener('click', () => {
+                const dataFiltro = filtroDataPrimeira.value;
+                let lista = Object.values(primeiros);
+                if (dataFiltro) {
+                    const inicio = new Date(dataFiltro + 'T00:00:00');
+                    const fim = new Date(dataFiltro + 'T23:59:59');
+                    lista = lista.filter(item => {
+                        const ts = new Date(item.timestamp);
+                        return ts >= inicio && ts <= fim;
+                    });
+                }
+                lista.sort((a, b) => b.timestamp - a.timestamp);
+                if (lista.length === 0) {
+                    mostrarToast('⚠️ Nenhum registro para exportar.', 'info');
+                    return;
+                }
+                let html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
+                html += '<head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>PrimeiraVez</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>';
+                html += '<body><table border="1">';
+                html += '<tr style="background-color:#2ecc71;color:#ffffff;font-weight:bold;"><td>Nome</td><td>Data/Hora Primeira Adição</td></tr>';
+                lista.forEach(item => {
+                    html += `<tr><td>${item.nome}</td><td>${formatarData(item.timestamp)}</td></tr>`;
+                });
+                html += '</table></body></html>';
+                const blob = new Blob(['\uFEFF' + html], { type: 'application/vnd.ms-excel;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `primeira_vez_${new Date().toISOString().slice(0,10)}.xls`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                mostrarToast('📥 Arquivo Excel exportado com sucesso!', 'success');
+            });
+
+            btnLimparPrimeiros.addEventListener('click', () => {
+                if (Object.keys(primeiros).length === 0) {
+                    mostrarToast('📭 Nada para limpar.', 'info');
+                    return;
+                }
+                if (confirm('Tem certeza que deseja apagar TODO o histórico de "primeira vez"?')) {
+                    primeirosRef.set(null);
+                    mostrarToast('🗑️ Histórico de primeira vez limpo.', 'info');
+                }
             });
 
             let toastTimeout;
