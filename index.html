@@ -624,7 +624,7 @@
             <button class="btn btn-outline" id="btnHistorico" style="display:none;">📋 Histórico</button>
             <button class="btn btn-outline" id="btnPrimeiraVez" style="display:none;">🕒 Primeira Vez</button>
             <button class="btn btn-outline" id="btnResetGeral" style="display:none;" title="Zerar cronômetros e limpar tempos exibidos">⏱️ Zerar Cronômetros</button>
-            <button class="btn btn-outline" id="btnLimparLista" style="display:none;" title="Limpar nomes da lista mantendo cadastros e cronômetros">🗑️ Limpar Lista</button>
+            <button class="btn btn-outline" id="btnLimparLista" style="display:none;" title="Limpar nomes da lista principal (histórico de adições mantido)">🗑️ Limpar Lista</button>
             <button class="btn btn-outline" id="btnSairVisivel" style="display:none;" title="Sair do modo admin">🚪 Sair</button>
         </div>
 
@@ -726,7 +726,7 @@
     <div class="modal-overlay" id="modalPrimeiraVez">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>🕒 Primeira vez que cada motoboy foi adicionado</h3>
+                <h3>🕒 Registro de cada adição à lista</h3>
                 <div class="modal-header-right">
                     <input type="date" id="filtroDataPrimeira" class="filter-date" title="Filtrar por data">
                     <button class="btn-export" id="btnExportarPrimeira" title="Exportar para Excel">📥 Exportar Excel</button>
@@ -737,12 +737,12 @@
             <div class="table-wrapper">
                 <table id="tabela-primeira-vez">
                     <thead>
-                        <tr><th>Nome</th><th>Data/Hora da primeira adição</th></tr>
+                        <tr><th>Nome</th><th>Data/Hora da adição</th></tr>
                     </thead>
                     <tbody id="tbody-primeira-vez"></tbody>
                 </table>
             </div>
-            <p style="font-size:0.7rem;color:var(--text-muted);margin-top:8px;">Registra automaticamente a primeira vez que cada nome é adicionado à lista principal.</p>
+            <p style="font-size:0.7rem;color:var(--text-muted);margin-top:8px;">Cada vez que um motoboy é adicionado à lista principal, um novo registro é criado aqui.</p>
         </div>
     </div>
 
@@ -768,13 +768,13 @@
             const checkoutsRef = db.ref('checkouts');
             const historicoRef = db.ref('historico');
             const motoboysRef = db.ref('motoboys');
-            const primeirosRef = db.ref('primeiros'); // novo nó
+            const primeirosRef = db.ref('primeiros');
 
             let registros = [];
             let checkouts = [];
             let historico = [];
             let motoboys = [];
-            let primeiros = {}; // chave: nomeLower, valor: { nome, timestamp }
+            let primeiros = [];
             let adminLogado = sessionStorage.getItem('admin_logado') === 'true';
 
             // Elementos do DOM
@@ -868,7 +868,8 @@
             });
 
             primeirosRef.on('value', (snapshot) => {
-                primeiros = snapshot.val() || {};
+                const dados = snapshot.val();
+                primeiros = dados ? (Array.isArray(dados) ? dados : []) : [];
                 if (modalPrimeiraVez.classList.contains('active')) {
                     preencherTabelaPrimeiraVez();
                 }
@@ -1021,8 +1022,8 @@
 
             function preencherTabelaPrimeiraVez() {
                 const dataFiltro = filtroDataPrimeira.value;
-                let lista = Object.values(primeiros);
-                
+                let lista = [...primeiros];
+
                 if (dataFiltro) {
                     const inicio = new Date(dataFiltro + 'T00:00:00');
                     const fim = new Date(dataFiltro + 'T23:59:59');
@@ -1032,11 +1033,10 @@
                     });
                 }
 
-                // Ordenar por timestamp decrescente (mais recente primeiro)
                 lista.sort((a, b) => b.timestamp - a.timestamp);
 
                 if (lista.length === 0) {
-                    tbodyPrimeiraVez.innerHTML = '<tr class="empty-row"><td colspan="2">Nenhum registro de primeira vez encontrado.</td></tr>';
+                    tbodyPrimeiraVez.innerHTML = '<tr class="empty-row"><td colspan="2">Nenhum registro de adição encontrado.</td></tr>';
                     return;
                 }
 
@@ -1080,13 +1080,9 @@
                     }
                 }
 
-                // Verifica/registra primeira vez
-                if (!primeiros[nomeLower]) {
-                    primeirosRef.child(nomeLower).set({
-                        nome: nomeTrim,
-                        timestamp: Date.now()
-                    });
-                }
+                // Registra SEMPRE a adição na lista "primeira vez" (log de adições)
+                primeiros.push({ nome: nomeTrim, timestamp: Date.now() });
+                primeirosRef.set(primeiros);
 
                 let tempoFora = '';
                 let checkoutEncontrado = -1;
@@ -1181,8 +1177,9 @@
             }
 
             function limparListaRegistros() {
+                // Apenas limpa a lista principal – NÃO apaga registros da "Primeira Vez"
                 registrosRef.set([]);
-                mostrarToast('🗑️ Lista de nomes limpa. Cadastros e cronômetros mantidos.', 'info');
+                mostrarToast('🗑️ Lista de nomes limpa. Histórico de adições mantido.', 'info');
             }
 
             // Event listeners
@@ -1197,7 +1194,7 @@
                     mostrarToast('📭 A lista já está vazia.', 'info');
                     return;
                 }
-                if (confirm('Tem certeza que deseja LIMPAR TODOS OS NOMES DA LISTA?\n\nOs cronômetros de intervalo e os cadastros de motoboys NÃO serão afetados.')) {
+                if (confirm('Tem certeza que deseja LIMPAR TODOS OS NOMES DA LISTA?\n\nO histórico de adições (Primeira Vez) NÃO será apagado.')) {
                     limparListaRegistros();
                 }
             });
@@ -1416,7 +1413,7 @@
                 mostrarToast('📥 Arquivo Excel exportado com sucesso!', 'success');
             });
 
-            // --- Modal Primeira Vez ---
+            // --- Modal Primeira Vez (log de adições) ---
             function abrirPrimeiraVez() {
                 preencherTabelaPrimeiraVez();
                 modalPrimeiraVez.classList.add('active');
@@ -1439,7 +1436,7 @@
 
             btnExportarPrimeira.addEventListener('click', () => {
                 const dataFiltro = filtroDataPrimeira.value;
-                let lista = Object.values(primeiros);
+                let lista = [...primeiros];
                 if (dataFiltro) {
                     const inicio = new Date(dataFiltro + 'T00:00:00');
                     const fim = new Date(dataFiltro + 'T23:59:59');
@@ -1454,9 +1451,9 @@
                     return;
                 }
                 let html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
-                html += '<head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>PrimeiraVez</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>';
+                html += '<head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Adicoes</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head>';
                 html += '<body><table border="1">';
-                html += '<tr style="background-color:#2ecc71;color:#ffffff;font-weight:bold;"><td>Nome</td><td>Data/Hora Primeira Adição</td></tr>';
+                html += '<tr style="background-color:#2ecc71;color:#ffffff;font-weight:bold;"><td>Nome</td><td>Data/Hora da Adição</td></tr>';
                 lista.forEach(item => {
                     html += `<tr><td>${item.nome}</td><td>${formatarData(item.timestamp)}</td></tr>`;
                 });
@@ -1465,7 +1462,7 @@
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = `primeira_vez_${new Date().toISOString().slice(0,10)}.xls`;
+                link.download = `adicoes_${new Date().toISOString().slice(0,10)}.xls`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -1474,13 +1471,13 @@
             });
 
             btnLimparPrimeiros.addEventListener('click', () => {
-                if (Object.keys(primeiros).length === 0) {
+                if (primeiros.length === 0) {
                     mostrarToast('📭 Nada para limpar.', 'info');
                     return;
                 }
-                if (confirm('Tem certeza que deseja apagar TODO o histórico de "primeira vez"?')) {
-                    primeirosRef.set(null);
-                    mostrarToast('🗑️ Histórico de primeira vez limpo.', 'info');
+                if (confirm('Tem certeza que deseja apagar TODOS os registros de adições?')) {
+                    primeirosRef.set([]);
+                    mostrarToast('🗑️ Histórico de adições limpo.', 'info');
                 }
             });
 
