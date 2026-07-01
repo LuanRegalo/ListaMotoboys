@@ -726,7 +726,7 @@
     <div class="modal-overlay" id="modalPrimeiraVez">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>🕒 Registro de cada adição à lista</h3>
+                <h3>🕒 Registro da primeira adição</h3>   <!-- Título ajustado -->
                 <div class="modal-header-right">
                     <input type="date" id="filtroDataPrimeira" class="filter-date" title="Filtrar por data">
                     <button class="btn-export" id="btnExportarPrimeira" title="Exportar para Excel">📥 Exportar Excel</button>
@@ -742,7 +742,7 @@
                     <tbody id="tbody-primeira-vez"></tbody>
                 </table>
             </div>
-            <p style="font-size:0.7rem;color:var(--text-muted);margin-top:8px;">Cada vez que um motoboy é adicionado à lista principal, um novo registro é criado aqui.</p>
+            <p style="font-size:0.7rem;color:var(--text-muted);margin-top:8px;">Cada entregador aparece apenas uma vez, com a data/hora da primeira vez que foi adicionado.</p>
         </div>
     </div>
 
@@ -1066,6 +1066,7 @@
                 mostrarToast('↕️ Ordem alterada.', 'info');
             }
 
+            // ⚡ FUNÇÃO MODIFICADA: agora evita repetição no "primeira vez"
             function adicionarRegistro(nome) {
                 const agora = new Date();
                 const horario = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
@@ -1080,9 +1081,12 @@
                     }
                 }
 
-                // Registra SEMPRE a adição na lista "primeira vez" (log de adições)
-                primeiros.push({ nome: nomeTrim, timestamp: Date.now() });
-                primeirosRef.set(primeiros);
+                // Verifica se o nome já está na lista "primeira vez"
+                const jaRegistrado = primeiros.some(p => p.nome.toLowerCase() === nomeLower);
+                if (!jaRegistrado) {
+                    primeiros.push({ nome: nomeTrim, timestamp: Date.now() });
+                    primeirosRef.set(primeiros);
+                }
 
                 let tempoFora = '';
                 let checkoutEncontrado = -1;
@@ -1177,7 +1181,6 @@
             }
 
             function limparListaRegistros() {
-                // Apenas limpa a lista principal – NÃO apaga registros da "Primeira Vez"
                 registrosRef.set([]);
                 mostrarToast('🗑️ Lista de nomes limpa. Histórico de adições mantido.', 'info');
             }
