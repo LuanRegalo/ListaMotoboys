@@ -227,44 +227,32 @@
             <li class="list-item admin-only" id="itemCadastroEntregadores" style="display:none;"><div class="item-indicator">🧑‍💼</div><div class="item-content"><div class="item-title">Cadastro de Entregadores</div><div class="item-desc" id="entregadoresCount"></div></div><span class="item-arrow">▶</span></li>
         </ul>
     </div>
+
+    <!-- Modais completos -->
     <div id="liberarAcessoModal" class="modal-overlay">
         <div class="modal-box" style="max-width:600px;">
             <div class="modal-header"><span class="modal-title">🟢 LIBERAR ACESSO</span><button class="modal-close" id="closeLiberarAcessoModal">✕</button></div>
             <div style="display:flex;flex-direction:column;gap:16px;">
                 <div style="font-family:'Orbitron';font-size:0.8rem;color:var(--green);margin-bottom:4px;letter-spacing:2px;">📅 DATA E HORA DE ACESSO</div>
-                <div class="input-group">
-                    <label>🟢 DATA E HORA DE LIBERAÇÃO</label>
-                    <input type="datetime-local" id="dataHoraLiberacao" class="futuristic-input">
-                </div>
-                <div class="input-group">
-                    <label>🔴 DATA E HORA DE BLOQUEIO</label>
-                    <input type="datetime-local" id="dataHoraBloqueio" class="futuristic-input">
-                </div>
-                <div style="font-family:'Share Tech Mono';font-size:0.7rem;color:rgba(180,200,220,0.5);text-align:center;">
-                    Status: <span id="statusAcessoAtual" style="color:#00a859;">Acesso liberado</span>
-                </div>
+                <div class="input-group"><label>🟢 DATA E HORA DE LIBERAÇÃO</label><input type="datetime-local" id="dataHoraLiberacao" class="futuristic-input"></div>
+                <div class="input-group"><label>🔴 DATA E HORA DE BLOQUEIO</label><input type="datetime-local" id="dataHoraBloqueio" class="futuristic-input"></div>
+                <div style="font-family:'Share Tech Mono';font-size:0.7rem;color:rgba(180,200,220,0.5);text-align:center;">Status: <span id="statusAcessoAtual" style="color:#00a859;">Acesso liberado</span></div>
                 <button id="saveHorariosBtn" class="login-btn">💾 SALVAR DATAS</button>
                 <div id="horariosMsg" style="font-family:'Share Tech Mono';font-size:0.7rem;color:#ffffff;text-align:center;min-height:20px;"></div>
                 <div style="border-top:1px solid rgba(0,168,89,0.3); padding-top:15px; margin-top:5px;">
                     <div style="font-family:'Orbitron';font-size:0.8rem;color:var(--green);margin-bottom:12px;letter-spacing:2px;">👥 USUÁRIOS LIBERADOS</div>
-                    <div class="import-format-info">
-                        <strong>Importar via TXT:</strong> Cole os nomes dos entregadores (um por linha) para liberar o acesso.<br>
-                        <strong>Exemplo:</strong><br>João Silva<br>Maria Santos<br>Pedro Alves
-                    </div>
-                    <textarea id="liberarUsuariosText" class="futuristic-input" placeholder="Cole os nomes aqui (um por linha)...&#10;João Silva&#10;Maria Santos"></textarea>
-                    <button id="importLiberarUsuariosBtn" class="login-btn" style="margin-top:8px;">⬇️ IMPORTAR USUÁRIOS</button>
+                    <div class="import-format-info"><strong>Importar via TXT:</strong> Cole os nomes (um por linha) para liberar.</div>
+                    <textarea id="liberarUsuariosText" class="futuristic-input" placeholder="Cole os nomes aqui..."></textarea>
+                    <button id="importLiberarUsuariosBtn" class="login-btn" style="margin-top:8px;">⬇️ IMPORTAR</button>
                     <div id="liberarUsuariosMsg" style="font-family:'Share Tech Mono';font-size:0.7rem;color:#ffffff;text-align:center;min-height:20px;margin-top:5px;"></div>
-                    <div style="margin-top:12px;">
-                        <div style="font-family:'Share Tech Mono';font-size:0.65rem;color:rgba(180,200,220,0.5);margin-bottom:5px;">Liberados: <span id="liberadosCount">0</span></div>
-                        <div class="usuarios-liberados-list" id="usuariosLiberadosLista">
-                            <div style="color:rgba(180,200,220,0.5);text-align:center;padding:10px;">Nenhum usuário liberado</div>
-                        </div>
-                        <button id="clearLiberadosBtn" class="login-btn danger-btn" style="margin-top:8px;">🗑️ REMOVER TODOS</button>
-                    </div>
+                    <div style="margin-top:12px;"><div style="font-family:'Share Tech Mono';font-size:0.65rem;color:rgba(180,200,220,0.5);margin-bottom:5px;">Liberados: <span id="liberadosCount">0</span></div>
+                    <div class="usuarios-liberados-list" id="usuariosLiberadosLista"></div>
+                    <button id="clearLiberadosBtn" class="login-btn danger-btn" style="margin-top:8px;">🗑️ REMOVER TODOS</button></div>
                 </div>
             </div>
         </div>
     </div>
+
     <div id="calendarModal" class="modal-overlay">
         <div class="modal-box">
             <div class="modal-header"><span class="modal-title">📅 DIAS RODADOS</span><button class="modal-close" id="closeCalendarModal">✕</button></div>
@@ -277,6 +265,7 @@
             <div class="calendar-info" id="calendarInfo">Visualize os dias</div>
         </div>
     </div>
+
     <div id="taxesModal" class="modal-overlay">
         <div class="modal-box">
             <div class="modal-header"><span class="modal-title">💲 DIÁRIAS, TAXAS E DESCONTOS</span><button class="modal-close" id="closeTaxesModal">✕</button></div>
@@ -284,9 +273,7 @@
                 <div id="adminSearchSection" style="display:none;">
                     <div style="border-top: 1px solid rgba(0,168,89,0.4); padding-top: 15px; margin-bottom: 15px;">
                         <div style="font-family: 'Orbitron'; font-size: 0.75rem; color: var(--green); letter-spacing: 2px; margin-bottom: 12px; text-align: center;">🔍 BUSCAR USUÁRIO</div>
-                        <select id="usuarioSelect" class="futuristic-input">
-                            <option value="">-- Selecione um entregador --</option>
-                        </select>
+                        <select id="usuarioSelect" class="futuristic-input"><option value="">-- Selecione um entregador --</option></select>
                     </div>
                 </div>
                 <div class="tax-field"><label>🏨 DIÁRIAS</label><input type="number" id="diariasInput" class="futuristic-input" placeholder="R$ 0,00" step="0.01"></div>
@@ -298,19 +285,17 @@
             </div>
         </div>
     </div>
+
     <div id="bairrosModal" class="modal-overlay">
         <div class="modal-box" style="max-width:600px;">
             <div class="modal-header"><span class="modal-title">🏙️ TABELA DE BAIRROS</span><button class="modal-close" id="closeBairrosModal">✕</button></div>
             <div style="margin-bottom:15px;">
-                <table class="bairros-table" id="bairrosTable">
-                    <thead><tr><th>Bairro</th><th>Taxa (R$)</th><th id="thAcoes"></th></tr></thead>
-                    <tbody></tbody>
-                </table>
+                <table class="bairros-table" id="bairrosTable"><thead><tr><th>Bairro</th><th>Taxa (R$)</th><th id="thAcoes"></th></tr></thead><tbody></tbody></table>
                 <div style="font-family:'Share Tech Mono'; font-size:0.7rem; color:rgba(180,200,220,0.5); margin-top:5px;">Total de bairros: <span id="bairrosCount">0</span></div>
             </div>
             <div id="adminImportSection" class="admin-section" style="border-top:1px solid rgba(0,168,89,0.3); padding-top:15px; margin-bottom:15px;">
                 <div style="font-family:'Orbitron';font-size:0.8rem;color:var(--green);margin-bottom:8px;">📋 COLE SUA LISTA (Bairro + Taxa)</div>
-                <textarea id="importBairrosText" class="futuristic-input" placeholder="Ex:&#10;pituba R$13&#10;barra R$18,50&#10;centro;200.00"></textarea>
+                <textarea id="importBairrosText" class="futuristic-input" placeholder="Ex: pituba R$13"></textarea>
                 <button id="importBairrosBtn" class="login-btn" style="margin-top:8px;">⬇️ IMPORTAR BAIRROS</button>
                 <div id="importMsg" style="font-family:'Share Tech Mono';font-size:0.7rem;color:rgba(180,200,220,0.7);text-align:center;min-height:20px;margin-top:5px;"></div>
             </div>
@@ -327,6 +312,7 @@
             </div>
         </div>
     </div>
+
     <div id="confirmModal" class="modal-overlay">
         <div class="modal-box confirm-box">
             <div style="font-family:'Orbitron';color:var(--white);font-size:1rem;margin-bottom:20px;">⚠️ Tem certeza que deseja remover TODOS os bairros?</div>
@@ -336,18 +322,18 @@
             </div>
         </div>
     </div>
+
     <div id="comandasModal" class="modal-overlay">
         <div class="modal-box" style="max-width:850px;">
             <div class="modal-header"><span class="modal-title">📋 COMANDAS</span><button class="modal-close" id="closeComandasModal">✕</button></div>
             <div style="border: 1px solid rgba(0,168,89,0.3); border-radius: 10px; padding: 15px; margin-bottom: 15px;">
                 <div style="font-family:'Orbitron';font-size:0.8rem;color:var(--green);margin-bottom:8px;letter-spacing:2px;">📥 IMPORTAR COMANDAS (TXT)</div>
                 <div class="import-format-info">
-                    <strong>Formato (separado por TAB ou ponto-e-vírgula ;):</strong><br>
-                    Data &nbsp;|&nbsp; Motoboy &nbsp;|&nbsp; Número &nbsp;|&nbsp; Bairro &nbsp;|&nbsp; Horário &nbsp;|&nbsp; Grupo &nbsp;|&nbsp; Valor<br>
-                    <strong>Grupos válidos:</strong> Regalo, Boutique, Sushi<br>
-                    <strong>Exemplo:</strong> 04/07/2026 &nbsp;;&nbsp; João &nbsp;;&nbsp; 0001 &nbsp;;&nbsp; Centro &nbsp;;&nbsp; 14:30 &nbsp;;&nbsp; Regalo &nbsp;;&nbsp; 150.00
+                    <strong>Formato (separado por TAB ou ;):</strong><br>
+                    Data ; Motoboy ; Número ; Bairro ; Horário ; Grupo ; Valor<br>
+                    <strong>Grupos válidos:</strong> Regalo, Boutique, Sushi
                 </div>
-                <textarea id="comandasImportText" class="futuristic-input" placeholder="Cole aqui os dados das comandas...&#10;04/07/2026;João;0001;Centro;14:30;Regalo;150.00&#10;04/07/2026;Maria;0002;Barra;15:00;Boutique;200.00"></textarea>
+                <textarea id="comandasImportText" class="futuristic-input" placeholder="Cole aqui os dados..."></textarea>
                 <button id="importComandasTxtBtn" class="login-btn" style="margin-top:8px;">⬇️ IMPORTAR DO TEXTO</button>
                 <div id="comandasImportMsg" style="font-family:'Share Tech Mono';font-size:0.7rem;color:#ffffff;text-align:center;min-height:20px;margin-top:5px;"></div>
             </div>
@@ -357,19 +343,13 @@
                     <div style="font-family:'Share Tech Mono';font-size:0.7rem;color:rgba(180,200,220,0.7);">Total: <span id="comandasTotalCount">0</span> | Soma: <span id="comandasSomaValores" style="color:#00ff88;">R$ 0,00</span></div>
                 </div>
                 <div class="comandas-table-container">
-                    <table class="comandas-table" id="comandasTable">
-                        <thead>
-                            <tr>
-                                <th>Data</th><th>Motoboy</th><th>Nº</th><th>Bairro</th><th>Horário</th><th>Grupo</th><th>Valor</th><th></th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+                    <table class="comandas-table" id="comandasTable"><thead><tr><th>Data</th><th>Motoboy</th><th>Nº</th><th>Bairro</th><th>Horário</th><th>Grupo</th><th>Valor</th><th></th></tr></thead><tbody></tbody></table>
                 </div>
                 <button id="clearComandasBtn" class="login-btn danger-btn" style="margin-top:10px;">🗑️ LIMPAR TODAS</button>
             </div>
         </div>
     </div>
+
     <div id="entregadoresModal" class="modal-overlay">
         <div class="modal-box" style="max-width:550px;">
             <div class="modal-header"><span class="modal-title">🧑‍💼 CADASTRO DE ENTREGADORES</span><button class="modal-close" id="closeEntregadoresModal">✕</button></div>
@@ -383,6 +363,7 @@
             </div>
         </div>
     </div>
+
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCOpiVOqfBHxNTsyCWhIi4nXNev12ewsAc",
@@ -404,274 +385,420 @@
         const taxasPorUsuarioRef = database.ref('taxasPorUsuario');
         const liberarAcessoRef = database.ref('liberarAcesso');
         const usuariosLiberadosRef = database.ref('usuariosLiberados');
-        let bairrosData = [];
-        let entregadoresData = [];
-        let comandasData = [];
-        let usuariosLiberadosData = [];
-        let currentDate = new Date();
-        let selectedDays = new Set();
-        let usuarioSelecionadoAtual = '';
 
-        // Limpa parênteses dos nomes de bairros
-        function limparNomeBairro(nome) {
-            if (!nome) return nome;
-            let limpo = nome.replace(/\(.*?\)/g, '');
-            limpo = limpo.replace(/\s+/g, ' ').trim();
-            return limpo;
-        }
+        let bairrosData = [], entregadoresData = [], comandasData = [], usuariosLiberadosData = [];
+        let currentDate = new Date(), selectedDays = new Set(), usuarioSelecionadoAtual = '';
+        let loggedUser = null, dadosCarregados = false;
 
-        const statusDot = document.getElementById('statusDot');
-        const statusText = document.getElementById('statusText');
-        database.ref('.info/connected').on('value', (snap) => {
-            if (snap.val() === true) { statusDot.className = 'status-dot online'; statusText.textContent = 'Conectado'; }
-            else { statusDot.className = 'status-dot offline'; statusText.textContent = 'Offline'; }
+        function limparNomeBairro(nome) { return nome ? nome.replace(/\(.*?\)/g, '').replace(/\s+/g, ' ').trim() : ''; }
+
+        const statusDot = document.getElementById('statusDot'), statusText = document.getElementById('statusText');
+        database.ref('.info/connected').on('value', snap => {
+            const online = snap.val() === true;
+            statusDot.className = 'status-dot ' + (online ? 'online' : 'offline');
+            statusText.textContent = online ? 'Conectado' : 'Offline';
         });
 
-        bairrosRef.on('value', (snapshot) => {
-            let rawData = snapshot.val() || [];
-            if (!Array.isArray(rawData)) { rawData = Object.values(rawData); }
+        bairrosRef.on('value', snap => {
+            let raw = snap.val() || []; if (!Array.isArray(raw)) raw = Object.values(raw);
             let changed = false;
-            bairrosData = rawData.map(b => {
-                const nomeLimpo = limparNomeBairro(b.nome);
-                if (nomeLimpo !== b.nome) {
-                    changed = true;
-                    return { ...b, nome: nomeLimpo };
-                }
+            bairrosData = raw.map(b => {
+                const limpo = limparNomeBairro(b.nome);
+                if (limpo !== b.nome) { changed = true; return { ...b, nome: limpo }; }
                 return b;
             });
             if (changed) bairrosRef.set(bairrosData);
-            renderBairrosTableIfOpen();
-            updateCounts();
+            renderBairrosTableIfOpen(); updateCounts();
         });
-
-        entregadoresRef.on('value', (snapshot) => {
-            entregadoresData = snapshot.val() || [];
-            if (!Array.isArray(entregadoresData)) { entregadoresData = Object.values(entregadoresData); }
+        entregadoresRef.on('value', snap => {
+            entregadoresData = snap.val() || []; if (!Array.isArray(entregadoresData)) entregadoresData = Object.values(entregadoresData);
             renderEntregadoresListaIfOpen(); updateCounts(); atualizarSelectUsuarios();
         });
-        comandasRef.on('value', (snapshot) => {
-            comandasData = snapshot.val() || [];
-            if (!Array.isArray(comandasData)) { comandasData = Object.values(comandasData); }
+        comandasRef.on('value', snap => {
+            comandasData = snap.val() || []; if (!Array.isArray(comandasData)) comandasData = Object.values(comandasData);
             renderComandasIfOpen(); updateCounts();
         });
-        diasRodadosRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            if (data) { selectedDays = new Set(Object.keys(data).filter(k => data[k] === true)); }
-            else { selectedDays = new Set(); }
-            const infoEl = document.getElementById('diasRodadosInfo');
-            if (infoEl) { infoEl.textContent = selectedDays.size ? `${selectedDays.size} dias registrados` : ''; }
+        diasRodadosRef.on('value', snap => {
+            const d = snap.val(); selectedDays = d ? new Set(Object.keys(d).filter(k => d[k])) : new Set();
+            const el = document.getElementById('diasRodadosInfo'); if (el) el.textContent = selectedDays.size ? `${selectedDays.size} dias` : '';
         });
-        taxasConfigRef.on('value', (snapshot) => {
-            if (!usuarioSelecionadoAtual) {
-                const data = snapshot.val() || {};
-                document.getElementById('diariasInput').value = data.diarias || '';
-                document.getElementById('taxasInput').value = data.taxas || '';
-                document.getElementById('descontosInput').value = data.descontos || '';
-                updateTaxasInfo(data); calcularTotalAutomatico();
+        taxasConfigRef.on('value', snap => {
+            if (!usuarioSelecionadoAtual && loggedUser && loggedUser.isAdmin) {
+                const d = snap.val() || {};
+                document.getElementById('diariasInput').value = d.diarias || '';
+                document.getElementById('taxasInput').value = d.taxas || '';
+                document.getElementById('descontosInput').value = d.descontos || '';
+                calcularTotalAutomatico(); updateTaxasInfo(d);
             }
         });
-        liberarAcessoRef.on('value', (snapshot) => {
-            const data = snapshot.val() || {};
-            document.getElementById('dataHoraLiberacao').value = data.liberacao || '';
-            document.getElementById('dataHoraBloqueio').value = data.bloqueio || '';
-            atualizarStatusAcesso(data);
+        liberarAcessoRef.on('value', snap => {
+            const d = snap.val() || {};
+            document.getElementById('dataHoraLiberacao').value = d.liberacao || '';
+            document.getElementById('dataHoraBloqueio').value = d.bloqueio || '';
+            atualizarStatusAcesso(d);
         });
-        usuariosLiberadosRef.on('value', (snapshot) => {
-            usuariosLiberadosData = snapshot.val() || [];
-            if (!Array.isArray(usuariosLiberadosData)) { usuariosLiberadosData = Object.values(usuariosLiberadosData); }
+        usuariosLiberadosRef.on('value', snap => {
+            usuariosLiberadosData = snap.val() || []; if (!Array.isArray(usuariosLiberadosData)) usuariosLiberadosData = Object.values(usuariosLiberadosData);
             renderUsuariosLiberadosLista();
         });
 
-        function atualizarStatusAcesso(data) {
-            const agora = new Date();
-            const agoraTimestamp = agora.getTime();
-            const lib = data.liberacao ? new Date(data.liberacao).getTime() : 0;
-            const bloq = data.bloqueio ? new Date(data.bloqueio).getTime() : Infinity;
-            const statusEl = document.getElementById('statusAcessoAtual');
-            const infoEl = document.getElementById('liberarAcessoInfo');
-            if (lib === 0 && bloq === Infinity) {
-                if (statusEl) { statusEl.textContent = 'Não configurado'; statusEl.style.color = '#ffaa00'; }
-                if (infoEl) infoEl.textContent = '';
-            } else if (agoraTimestamp >= lib && agoraTimestamp < bloq) {
-                if (statusEl) { statusEl.textContent = 'Acesso liberado'; statusEl.style.color = '#00a859'; }
-                if (infoEl) { infoEl.textContent = '🟢 Liberado'; infoEl.style.color = '#00a859'; }
-            } else {
-                if (statusEl) { statusEl.textContent = 'Acesso bloqueado'; statusEl.style.color = '#ce2b37'; }
-                if (infoEl) { infoEl.textContent = '🔴 Bloqueado'; infoEl.style.color = '#ce2b37'; }
+        function iniciarListenerUsuarioLogado() {
+            if (loggedUser && !loggedUser.isAdmin) {
+                taxasPorUsuarioRef.child(loggedUser.username).off();
+                taxasPorUsuarioRef.child(loggedUser.username).on('value', snap => {
+                    const d = snap.val() || { diarias: 0, taxas: 0, descontos: 0 };
+                    document.getElementById('diariasInput').value = d.diarias || 0;
+                    document.getElementById('taxasInput').value = d.taxas || 0;
+                    document.getElementById('descontosInput').value = d.descontos || 0;
+                    calcularTotalAutomatico();
+                    const info = document.getElementById('taxesInfo');
+                    if (info) { info.textContent = '👤 Seus dados (atualizados das comandas)'; info.style.color = '#00a859'; }
+                });
             }
         }
 
-        function renderUsuariosLiberadosLista() { /* ... mesma implementação ... */ }
-        function updateCounts() { /* ... */ }
-        function updateTaxasInfo(data) { /* ... */ }
-        function calcularTotalAutomatico() { /* ... */ }
-        function atualizarSelectUsuarios() { /* ... */ }
-        function carregarDadosUsuario(nomeUsuario) { /* ... */ }
         function renderBairrosTableIfOpen() { if (document.getElementById('bairrosModal').classList.contains('active')) renderBairrosTable(); }
-        function renderEntregadoresListaIfOpen() { /* ... */ }
-        function renderComandasIfOpen() { /* ... */ }
-        function renderCalendar() { /* ... */ }
-        function ordenarBairros() { bairrosData.sort((a, b) => a.taxa - b.taxa); }
+        function renderEntregadoresListaIfOpen() { if (document.getElementById('entregadoresModal').classList.contains('active')) renderEntregadoresLista(); }
+        function renderComandasIfOpen() { if (document.getElementById('comandasModal').classList.contains('active')) renderComandas(); }
 
-        function renderBairrosTable() {
-            ordenarBairros();
-            const tbody = document.querySelector('#bairrosTable tbody');
-            const isAdmin = loggedUser && loggedUser.isAdmin;
-            document.getElementById('thAcoes').style.display = isAdmin ? 'table-cell' : 'none';
-            tbody.innerHTML = bairrosData.map((b, index) => `
-                <tr>
-                    <td>${b.nome}</td>
-                    <td>${b.taxa.toFixed(2)}</td>
-                    ${isAdmin ? `<td><button class="remove-bairro" data-index="${index}">🗑️</button></td>` : '<td></td>'}
-                </tr>`).join('');
-            document.getElementById('bairrosCount').textContent = bairrosData.length;
-            if (isAdmin) {
-                document.querySelectorAll('.remove-bairro').forEach(btn => {
-                    btn.onclick = (e) => {
-                        const index = parseInt(e.target.getAttribute('data-index'));
-                        bairrosData.splice(index, 1);
-                        saveBairros(bairrosData);
-                        renderBairrosTable();
-                    };
+        function updateCounts() {
+            document.getElementById('entregadoresCount').textContent = entregadoresData.length ? `${entregadoresData.length} entregador(es)` : '';
+            document.getElementById('comandasCount').textContent = comandasData.length ? `${comandasData.length} comanda(s)` : '';
+        }
+        function updateTaxasInfo(d) {
+            const el = document.getElementById('diariasTaxasInfo');
+            if (el) { const sum = (parseFloat(d.diarias)||0)+(parseFloat(d.taxas)||0)-(parseFloat(d.descontos)||0); el.textContent = sum ? `Total: R$ ${sum.toFixed(2)}` : ''; }
+        }
+        function calcularTotalAutomatico() {
+            const d=parseFloat(document.getElementById('diariasInput').value)||0, t=parseFloat(document.getElementById('taxasInput').value)||0, desc=parseFloat(document.getElementById('descontosInput').value)||0;
+            const total = d+t-desc, el = document.getElementById('totalAutomatico');
+            if (el) { el.textContent = `R$ ${total.toFixed(2)}`; el.style.color = total<0?'#ff4444':total>0?'#00ff88':'#ffffff'; }
+        }
+        function atualizarSelectUsuarios() {
+            const s = document.getElementById('usuarioSelect'); if (!s) return;
+            const cur = s.value; s.innerHTML = '<option value="">-- Selecione um entregador --</option>';
+            entregadoresData.forEach(e => { const o = document.createElement('option'); o.value=e.nome; o.textContent=e.nome; s.appendChild(o); });
+            s.value = entregadoresData.some(e=>e.nome===cur) ? cur : '';
+        }
+        function carregarDadosUsuario(nome) {
+            if (!nome) {
+                usuarioSelecionadoAtual = '';
+                taxasConfigRef.once('value').then(snap => {
+                    const d = snap.val()||{};
+                    document.getElementById('diariasInput').value = d.diarias||''; document.getElementById('taxasInput').value = d.taxas||''; document.getElementById('descontosInput').value = d.descontos||'';
+                    calcularTotalAutomatico(); document.getElementById('taxesInfo').textContent = '';
+                });
+            } else {
+                usuarioSelecionadoAtual = nome;
+                taxasPorUsuarioRef.child(nome).once('value').then(snap => {
+                    const d = snap.val()||{ diarias:0,taxas:0,descontos:0 };
+                    document.getElementById('diariasInput').value = d.diarias||0; document.getElementById('taxasInput').value = d.taxas||0; document.getElementById('descontosInput').value = d.descontos||0;
+                    calcularTotalAutomatico(); document.getElementById('taxesInfo').textContent = `👤 Visualizando: ${nome}`; document.getElementById('taxesInfo').style.color='#00a859';
                 });
             }
-            document.getElementById('adminImportSection').style.display = isAdmin ? 'block' : 'none';
-            document.getElementById('adminAddSection').style.display = isAdmin ? 'block' : 'none';
-            document.getElementById('adminClearSection').style.display = isAdmin ? 'block' : 'none';
         }
 
-        function saveBairros(arr) { bairrosRef.set(arr); }
+        function renderCalendar() {
+            const y=currentDate.getFullYear(), m=currentDate.getMonth();
+            const months=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+            document.getElementById('monthYearDisplay').textContent = `${months[m]} ${y}`;
+            const firstDay=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
+            const grid=document.getElementById('calendarDaysGrid'); grid.innerHTML='';
+            ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].forEach(d=>{ const h=document.createElement('div'); h.className='calendar-day-header'; h.textContent=d; grid.appendChild(h); });
+            for(let i=0;i<firstDay;i++) { const e=document.createElement('div'); e.className='calendar-day empty'; grid.appendChild(e); }
+            for(let d=1;d<=days;d++) {
+                const dayEl=document.createElement('div'); dayEl.className='calendar-day readonly'; dayEl.textContent=d;
+                const key=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+                if(selectedDays.has(key)) dayEl.classList.add('selected');
+                grid.appendChild(dayEl);
+            }
+            document.getElementById('calendarInfo').textContent = `${selectedDays.size} dias registrados`;
+        }
 
-        function parseLinhaBairro(linha) { /* ... mesma implementação com limparNomeBairro ... */ }
-        function importarBairros() { /* ... */ }
-        function adicionarBairro() { /* ... */ }
-        function abrirConfirmClear() { /* ... */ }
-        function fecharConfirmClear() { /* ... */ }
-        function executarLimpeza() { /* ... */ }
+        function ordenarBairros() { bairrosData.sort((a,b)=>a.taxa-b.taxa); }
+        function saveBairros(a) { bairrosRef.set(a); }
+        function renderBairrosTable() {
+            ordenarBairros(); const tbody=document.querySelector('#bairrosTable tbody');
+            const isAdmin=loggedUser&&loggedUser.isAdmin;
+            document.getElementById('thAcoes').style.display=isAdmin?'table-cell':'none';
+            tbody.innerHTML=bairrosData.map((b,i)=>`<tr><td>${b.nome}</td><td>${b.taxa.toFixed(2)}</td>${isAdmin?`<td><button class="remove-bairro" data-index="${i}">🗑️</button></td>`:'<td></td>'}</tr>`).join('');
+            document.getElementById('bairrosCount').textContent=bairrosData.length;
+            if(isAdmin) document.querySelectorAll('.remove-bairro').forEach(btn=>btn.onclick=e=>{bairrosData.splice(parseInt(e.target.dataset.index),1);saveBairros(bairrosData);renderBairrosTable();});
+            document.getElementById('adminImportSection').style.display=isAdmin?'block':'none';
+            document.getElementById('adminAddSection').style.display=isAdmin?'block':'none';
+            document.getElementById('adminClearSection').style.display=isAdmin?'block':'none';
+        }
 
-        const GRUPOS_VALIDOS = ['regalo', 'boutique', 'sushi'];
-        function getBadgeGrupo(grupo) { /* ... */ }
+        function parseLinhaBairro(linha) {
+            linha=linha.trim(); if(!linha) return null;
+            let parts=linha.split(';');
+            if(parts.length>=2) { const nome=limparNomeBairro(parts[0].trim()), v=parseFloat(parts[1].replace('R$','').replace(/\./g,'').replace(',','.')); if(nome&&!isNaN(v)&&v>=0) return {nome,taxa:v}; }
+            const match=linha.match(/^(.+?)\s+R?\$?\s*([\d,.]+)\s*$/);
+            if(match) { const nome=limparNomeBairro(match[1].trim()), v=parseFloat(match[2].replace('R$','').replace(/\./g,'').replace(',','.')); if(nome&&!isNaN(v)&&v>=0) return {nome,taxa:v}; }
+            const tokens=linha.split(/\s+/);
+            if(tokens.length>=2) { const v=parseFloat(tokens[tokens.length-1].replace('R$','').replace(',','.')); if(!isNaN(v)&&v>=0) { const nome=limparNomeBairro(tokens.slice(0,-1).join(' ')); return {nome,taxa:v}; } }
+            return null;
+        }
 
-        function parseLinhaComanda(linha) { /* ... mesma implementação ... */ }
+        function importarBairros() {
+            if(!loggedUser||!loggedUser.isAdmin) return;
+            const text=document.getElementById('importBairrosText').value.trim(), msg=document.getElementById('importMsg');
+            if(!text){msg.textContent='⚠️ Cole a lista.';msg.style.color='#ce2b37';return;}
+            const lines=text.split('\n').filter(l=>l.trim()); let novos=0,erros=0,arr=[];
+            for(let l of lines) { const p=parseLinhaBairro(l); if(!p||bairrosData.some(b=>b.nome.toLowerCase()===p.nome.toLowerCase())){erros++;continue;} arr.push(p);novos++; }
+            if(novos){ saveBairros([...bairrosData,...arr]); msg.textContent=`✅ ${novos} importados!`; msg.style.color='#00a859'; document.getElementById('importBairrosText').value=''; }
+            else { msg.textContent=`⚠️ Nenhum novo (${erros} erros).`; msg.style.color='#ce2b37'; }
+            setTimeout(()=>{msg.style.color='rgba(180,200,220,0.7)';},4000);
+        }
+        function adicionarBairro() {
+            if(!loggedUser||!loggedUser.isAdmin) return;
+            const nome=limparNomeBairro(document.getElementById('novoBairroNome').value.trim()), taxa=parseFloat(document.getElementById('novoBairroTaxa').value), msg=document.getElementById('bairroMsg');
+            if(!nome||isNaN(taxa)){msg.textContent='⚠️ Preencha todos.';msg.style.color='#ce2b37';return;}
+            if(taxa<0){msg.textContent='⚠️ Valor negativo.';msg.style.color='#ce2b37';return;}
+            if(bairrosData.some(b=>b.nome.toLowerCase()===nome.toLowerCase())){msg.textContent='⚠️ Já existe.';msg.style.color='#ce2b37';return;}
+            bairrosData.push({nome,taxa}); saveBairros(bairrosData);
+            document.getElementById('novoBairroNome').value=''; document.getElementById('novoBairroTaxa').value='';
+            msg.textContent='✅ Adicionado!'; msg.style.color='#00a859';
+            setTimeout(()=>{msg.style.color='rgba(180,200,220,0.7)';},3000);
+        }
+        function abrirConfirmClear(){document.getElementById('confirmModal').classList.add('active');}
+        function fecharConfirmClear(){document.getElementById('confirmModal').classList.remove('active');}
+        function executarLimpeza(){saveBairros([]);fecharConfirmClear();document.getElementById('clearMsg').textContent='✅ Limpo.';document.getElementById('clearMsg').style.color='#00a859';setTimeout(()=>{document.getElementById('clearMsg').textContent='';},3000);}
 
-        // 🔄 NOVA FUNÇÃO: recalcula totais de comandas por motoboy e atualiza Taxas no perfil
-        function recalcularTaxasComandas() {
-            comandasRef.once('value').then(snapshot => {
-                const comandas = snapshot.val() || [];
-                if (!Array.isArray(comandas)) return;
-                const totais = {};
-                comandas.forEach(c => {
-                    if (c.motoboy && c.valor) {
-                        const nome = c.motoboy.trim();
-                        const chave = nome.toLowerCase();
-                        totais[chave] = (totais[chave] || 0) + parseFloat(c.valor);
-                    }
-                });
-                let atualizados = 0;
-                for (const [chave, total] of Object.entries(totais)) {
-                    const nomeOriginal = comandas.find(c => c.motoboy && c.motoboy.trim().toLowerCase() === chave)?.motoboy.trim() || chave;
-                    taxasPorUsuarioRef.child(nomeOriginal).update({ taxas: total });
-                    atualizados++;
+        const GRUPOS_VALIDOS=['regalo','boutique','sushi'];
+        function getBadgeGrupo(g){if(!g)return'-'; const l=g.toLowerCase(); if(l==='regalo')return'<span class="badge-grupo badge-regalo">Regalo</span>'; if(l==='boutique')return'<span class="badge-grupo badge-boutique">Boutique</span>'; if(l==='sushi')return'<span class="badge-grupo badge-sushi">Sushi</span>'; return g;}
+        function parseLinhaComanda(linha){
+            linha=linha.trim(); if(!linha) return null;
+            let parts; if(linha.includes('\t')) parts=linha.split('\t'); else if(linha.includes(';')) parts=linha.split(';'); else { parts=linha.split(/\s{2,}/); if(parts.length<7) return null; }
+            if(parts.length<7) return null;
+            const data=parts[0].trim(), motoboy=parts[1].trim(), numero=parts[2].trim(), bairro=parts[3].trim(), horario=parts[4].trim(), grupo=parts[5].trim(), valorStr=parts[6].trim().replace('R$','').replace(/\./g,'').replace(',','.'), valor=parseFloat(valorStr);
+            if(!data||!motoboy||!numero||!bairro||!horario||!grupo||isNaN(valor)) return null;
+            if(!/^\d{4}$/.test(numero)) return null;
+            if(!GRUPOS_VALIDOS.includes(grupo.toLowerCase())) return null;
+            if(valor<0) return null;
+            return {data,motoboy,numero,bairro,horario,grupo:grupo.charAt(0).toUpperCase()+grupo.slice(1).toLowerCase(),valor,timestamp:new Date().toISOString()};
+        }
+
+        function recalcularTaxasComandas(){
+            comandasRef.once('value').then(snap=>{
+                const comandas=snap.val()||[]; if(!Array.isArray(comandas)) return;
+                const totais={}; comandas.forEach(c=>{ if(c.motoboy&&c.valor){ const chave=c.motoboy.trim().toLowerCase(); totais[chave]=(totais[chave]||0)+parseFloat(c.valor); } });
+                const updates={}; let atualizados=0;
+                for(const [chave,total] of Object.entries(totais)){
+                    const original=comandas.find(c=>c.motoboy&&c.motoboy.trim().toLowerCase()===chave)?.motoboy.trim()||chave;
+                    updates[original]={taxas:total}; atualizados++;
                 }
-                const msgEl = document.getElementById('comandasImportMsg');
-                if (msgEl) {
-                    const textoAtual = msgEl.textContent.replace(/\s*\|\s*Taxas atualizadas.*$/, '');
-                    msgEl.textContent = `${textoAtual} | Taxas atualizadas para ${atualizados} motoboy(s).`;
-                    msgEl.style.color = '#00a859';
-                }
+                if(atualizados>0) taxasPorUsuarioRef.update(updates);
+                const msg=document.getElementById('comandasImportMsg');
+                if(msg&&msg.textContent.includes('importada')){ msg.textContent=msg.textContent.replace(/\s*\|\s*Taxas.*$/,'')+` | Taxas de ${atualizados} motoboy(s) atualizadas.`; msg.style.color='#00a859'; }
             });
         }
 
-        function importarComandasTxt() {
-            if (!loggedUser || !loggedUser.isAdmin) return;
-            const text = document.getElementById('comandasImportText').value.trim();
-            const msg = document.getElementById('comandasImportMsg');
-            if (!text) { msg.textContent = '⚠️ Cole os dados das comandas.'; msg.style.color = '#ce2b37'; return; }
-            const lines = text.split('\n').filter(line => line.trim() !== '');
-            let importadas = 0, erros = 0;
-            const novasComandas = [];
-            for (let line of lines) {
-                const parsed = parseLinhaComanda(line);
-                if (parsed) { novasComandas.push(parsed); importadas++; }
-                else { erros++; }
-            }
-            if (importadas > 0) {
-                const atualizadas = [...comandasData, ...novasComandas];
-                comandasRef.set(atualizadas).then(() => {
-                    document.getElementById('comandasImportText').value = '';
-                    msg.textContent = `✅ ${importadas} comanda(s) importada(s)!${erros > 0 ? ` (${erros} linha(s) com erro)` : ''}`;
-                    msg.style.color = '#00a859';
-                    recalcularTaxasComandas(); // dispara o cálculo
+        function importarComandasTxt(){
+            if(!loggedUser||!loggedUser.isAdmin) return;
+            const text=document.getElementById('comandasImportText').value.trim(), msg=document.getElementById('comandasImportMsg');
+            if(!text){msg.textContent='⚠️ Cole os dados.';msg.style.color='#ce2b37';return;}
+            const lines=text.split('\n').filter(l=>l.trim()); let importadas=0,erros=0,novas=[];
+            for(let l of lines){const p=parseLinhaComanda(l); if(p){novas.push(p);importadas++;}else{erros++;}}
+            if(importadas>0){
+                comandasRef.set([...comandasData,...novas]).then(()=>{
+                    document.getElementById('comandasImportText').value='';
+                    msg.textContent=`✅ ${importadas} comanda(s) importada(s)!${erros>0?` (${erros} erros)` : ''}`; msg.style.color='#00a859';
+                    recalcularTaxasComandas();
                 });
-            } else {
-                msg.textContent = `⚠️ Nenhuma comanda válida (${erros} erros).`;
-                msg.style.color = '#ce2b37';
-            }
-            setTimeout(() => { if (msg.style.color === '#00a859' || msg.style.color === '#ce2b37') msg.textContent = ''; }, 6000);
+            }else{ msg.textContent=`⚠️ Nenhuma válida (${erros} erros).`; msg.style.color='#ce2b37'; }
+            setTimeout(()=>{if(msg.style.color!=='#ce2b37') msg.textContent='';},6000);
         }
 
-        function renderComandas() { /* ... */ }
-        function limparComandas() { comandasRef.set([]); }
-        function addEntregador(nome, senha) { /* ... */ }
-        function removeEntregador(nome) { /* ... */ }
-        function renderEntregadoresLista() { /* ... */ }
-        function realizarCadastroEntregador() { /* ... */ }
-        function importarUsuariosLiberados() { /* ... */ }
-        function limparUsuariosLiberados() { usuariosLiberadosRef.set([]); }
+        function renderComandas(){
+            const tbody=document.querySelector('#comandasTable tbody'), isAdmin=loggedUser&&loggedUser.isAdmin;
+            if(comandasData.length===0){ tbody.innerHTML='<tr><td colspan="8" style="text-align:center;color:rgba(180,200,220,0.5);padding:15px;">Nenhuma comanda</td></tr>'; }
+            else {
+                tbody.innerHTML=comandasData.map((c,i)=>`<tr><td>${c.data||'-'}</td><td>${c.motoboy||'-'}</td><td>${c.numero||'-'}</td><td>${c.bairro||'-'}</td><td>${c.horario||'-'}</td><td>${getBadgeGrupo(c.grupo)}</td><td style="color:#00ff88;">${c.valor?'R$ '+parseFloat(c.valor).toFixed(2):'-'}</td>${isAdmin?`<td><button class="remove-comanda" data-index="${i}" style="background:rgba(206,43,55,0.2);border:1px solid rgba(206,43,55,0.5);color:var(--red);padding:2px 6px;border-radius:4px;cursor:pointer;font-size:0.6rem;">✕</button></td>`:'<td></td>'}</tr>`).join('');
+                if(isAdmin) document.querySelectorAll('.remove-comanda').forEach(btn=>btn.onclick=e=>{ comandasData.splice(parseInt(e.target.dataset.index),1); comandasRef.set(comandasData); renderComandas(); });
+            }
+            document.getElementById('comandasTotalCount').textContent=comandasData.length;
+            document.getElementById('comandasSomaValores').textContent=`R$ ${comandasData.reduce((a,c)=>a+(parseFloat(c.valor)||0),0).toFixed(2)}`;
+        }
+        function limparComandas(){comandasRef.set([]);}
 
-        const ADMIN_USER = "admin", ADMIN_PASS = "123";
-        let loggedUser = null;
-        let dadosCarregados = false;
-        function verificarDadosCarregados() { /* ... */ }
+        function addEntregador(nome,senha){
+            if(entregadoresData.find(e=>e.nome.toLowerCase()===nome.toLowerCase())) return {success:false,message:'⚠️ Já cadastrado'};
+            if(nome.toLowerCase()==='admin') return {success:false,message:'⚠️ Nome reservado'};
+            entregadoresData.push({nome,senha}); entregadoresRef.set(entregadoresData);
+            return {success:true,message:'✅ Cadastrado'};
+        }
+        function removeEntregador(nome){entregadoresData=entregadoresData.filter(e=>e.nome!==nome); entregadoresRef.set(entregadoresData);}
+        function renderEntregadoresLista(){
+            const lista=document.getElementById('entregadoresLista');
+            lista.innerHTML=entregadoresData.length===0?'<div style="color:rgba(180,200,220,0.5);text-align:center;padding:10px;">Nenhum</div>':entregadoresData.map(e=>`<div class="entregador-item"><span>🧑 ${e.nome}</span><button class="remove-entregador" data-nome="${e.nome}">🗑️</button></div>`).join('');
+            document.querySelectorAll('.remove-entregador').forEach(b=>b.addEventListener('click',ev=>removeEntregador(ev.target.dataset.nome)));
+        }
+        function realizarCadastroEntregador(){
+            const nome=document.getElementById('entregadorNome').value.trim(), senha=document.getElementById('entregadorSenha').value, conf=document.getElementById('entregadorConfirmaSenha').value, msg=document.getElementById('entregadorMsg');
+            if(!nome||!senha||!conf){msg.textContent='⚠️ Preencha todos';msg.style.color='#ce2b37';return;}
+            if(senha!==conf){msg.textContent='⚠️ Senhas não conferem';msg.style.color='#ce2b37';return;}
+            const r=addEntregador(nome,senha); msg.textContent=r.message; msg.style.color=r.success?'#00a859':'#ce2b37';
+            if(r.success){ document.getElementById('entregadoresModal').classList.remove('active'); loggedUser={username:nome,isAdmin:false}; entrarNoSistema(); }
+            setTimeout(()=>{msg.style.color='#ffffff';},3000);
+        }
+
+        function renderUsuariosLiberadosLista(){
+            const lista=document.getElementById('usuariosLiberadosLista'); document.getElementById('liberadosCount').textContent=usuariosLiberadosData.length;
+            lista.innerHTML=usuariosLiberadosData.length===0?'<div style="color:rgba(180,200,220,0.5);text-align:center;padding:10px;">Nenhum</div>':usuariosLiberadosData.map((n,i)=>`<div class="usuario-liberado-item"><span>✅ ${n}</span><button class="remove-liberado" data-index="${i}">✕</button></div>`).join('');
+            document.querySelectorAll('.remove-liberado').forEach(b=>b.onclick=e=>{usuariosLiberadosData.splice(parseInt(e.target.dataset.index),1);usuariosLiberadosRef.set(usuariosLiberadosData);});
+        }
+        function importarUsuariosLiberados(){
+            if(!loggedUser||!loggedUser.isAdmin) return;
+            const text=document.getElementById('liberarUsuariosText').value.trim(), msg=document.getElementById('liberarUsuariosMsg');
+            if(!text){msg.textContent='⚠️ Cole os nomes';msg.style.color='#ce2b37';return;}
+            const lines=text.split('\n').map(l=>l.trim()).filter(l=>l); let add=0,novos=[];
+            for(let l of lines){ if(!usuariosLiberadosData.some(u=>u.toLowerCase()===l.toLowerCase())){novos.push(l);add++;} }
+            if(add>0){ usuariosLiberadosRef.set([...usuariosLiberadosData,...novos]); msg.textContent=`✅ ${add} liberado(s)`; msg.style.color='#00a859'; document.getElementById('liberarUsuariosText').value=''; }
+            else{ msg.textContent='⚠️ Nenhum novo'; msg.style.color='#ce2b37'; }
+            setTimeout(()=>{msg.style.color='#ffffff';msg.textContent='';},4000);
+        }
+        function limparUsuariosLiberados(){usuariosLiberadosRef.set([]);}
+        function atualizarStatusAcesso(d){
+            const agora=Date.now(), lib=d.liberacao?new Date(d.liberacao).getTime():0, bloq=d.bloqueio?new Date(d.bloqueio).getTime():Infinity;
+            const st=document.getElementById('statusAcessoAtual'), info=document.getElementById('liberarAcessoInfo');
+            if(lib===0&&bloq===Infinity){ if(st){st.textContent='Não configurado';st.style.color='#ffaa00';} if(info)info.textContent=''; }
+            else if(agora>=lib&&agora<bloq){ if(st){st.textContent='Acesso liberado';st.style.color='#00a859';} if(info){info.textContent='🟢 Liberado';info.style.color='#00a859';} }
+            else { if(st){st.textContent='Acesso bloqueado';st.style.color='#ce2b37';} if(info){info.textContent='🔴 Bloqueado';info.style.color='#ce2b37';} }
+        }
+
+        const ADMIN_USER="admin",ADMIN_PASS="123";
+        function verificarDadosCarregados(){ Promise.all([new Promise(r=>entregadoresRef.once('value',r)),new Promise(r=>bairrosRef.once('value',r))]).then(()=>{dadosCarregados=true;document.getElementById('loginError').textContent='';}); }
         verificarDadosCarregados();
-        function attemptLogin() { /* ... mesma lógica ... */ }
-        function entrarNoSistema() { /* ... */ }
-        function logout() { /* ... */ }
-        function configurarCamposTaxas() { /* ... */ }
 
-        // Event listeners principais
+        function attemptLogin(){
+            const u=document.getElementById('usernameInput').value.trim(), p=document.getElementById('passwordInput').value.trim();
+            if(!u||!p){document.getElementById('loginError').textContent='⚠️ Preencha todos';return;}
+            if(u===ADMIN_USER&&p===ADMIN_PASS){loggedUser={username:ADMIN_USER,isAdmin:true};entrarNoSistema();return;}
+            if(!dadosCarregados){document.getElementById('loginError').textContent='⏳ Aguarde...';setTimeout(attemptLogin,1000);return;}
+            const ent=entregadoresData.find(e=>e.nome.toLowerCase()===u.toLowerCase()&&e.senha===p);
+            if(ent){
+                if(!usuariosLiberadosData.some(l=>l.toLowerCase()===u.toLowerCase())){document.getElementById('loginError').textContent='🔒 Não liberado';return;}
+                liberarAcessoRef.once('value').then(snap=>{
+                    const d=snap.val()||{}, agora=Date.now(), lib=d.liberacao?new Date(d.liberacao).getTime():0, bloq=d.bloqueio?new Date(d.bloqueio).getTime():Infinity;
+                    if((lib===0&&bloq===Infinity)||(agora>=lib&&agora<bloq)){loggedUser={username:ent.nome,isAdmin:false};entrarNoSistema();}
+                    else{document.getElementById('loginError').textContent='⏰ Fora do período';}
+                });
+            }else{document.getElementById('loginError').textContent='⚠️ ACESSO NEGADO';document.getElementById('passwordInput').value='';}
+        }
+
+        function entrarNoSistema(){
+            document.getElementById('loginScreen').classList.add('hidden'); document.getElementById('mainContent').classList.add('visible');
+            document.getElementById('loggedUserDisplay').textContent=loggedUser.username;
+            const isAdmin=loggedUser.isAdmin;
+            document.getElementById('itemLiberarAcesso').style.display=isAdmin?'flex':'none';
+            document.getElementById('itemCadastroEntregadores').style.display=isAdmin?'flex':'none';
+            document.getElementById('itemComandas').style.display=isAdmin?'flex':'none';
+            updateCounts(); document.getElementById('usernameInput').value=''; document.getElementById('passwordInput').value=''; document.getElementById('loginError').textContent='';
+            if(!isAdmin) iniciarListenerUsuarioLogado();
+        }
+
+        function logout(){
+            if(loggedUser&&!loggedUser.isAdmin) taxasPorUsuarioRef.child(loggedUser.username).off();
+            loggedUser=null; usuarioSelecionadoAtual='';
+            document.getElementById('mainContent').classList.remove('visible'); document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('usernameInput').focus(); document.getElementById('loginError').textContent='';
+        }
+
+        function configurarCamposTaxas(){
+            const isAdmin=loggedUser&&loggedUser.isAdmin;
+            const di=document.getElementById('diariasInput'), ta=document.getElementById('taxasInput'), de=document.getElementById('descontosInput');
+            const save=document.getElementById('saveTaxesBtn'), search=document.getElementById('adminSearchSection');
+            if(isAdmin){
+                di.readOnly=false;ta.readOnly=false;de.readOnly=false;
+                di.classList.remove('readonly');ta.classList.remove('readonly');de.classList.remove('readonly');
+                save.style.display='block'; search.style.display='block'; atualizarSelectUsuarios();
+            }else{
+                di.readOnly=true;ta.readOnly=true;de.readOnly=true;
+                di.classList.add('readonly');ta.classList.add('readonly');de.classList.add('readonly');
+                save.style.display='none'; search.style.display='none'; usuarioSelecionadoAtual='';
+            }
+            calcularTotalAutomatico();
+        }
+
+        // Event Listeners
         document.getElementById('loginBtn').addEventListener('click', attemptLogin);
-        document.getElementById('passwordInput').addEventListener('keydown', e => { if (e.key === 'Enter') attemptLogin(); });
-        document.getElementById('usernameInput').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('passwordInput').focus(); });
+        document.getElementById('passwordInput').addEventListener('keydown',e=>{if(e.key==='Enter')attemptLogin();});
+        document.getElementById('usernameInput').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('passwordInput').focus();});
         document.getElementById('logoutBtn').addEventListener('click', logout);
         document.getElementById('clearAllBairrosBtn').addEventListener('click', abrirConfirmClear);
         document.getElementById('confirmYes').addEventListener('click', executarLimpeza);
         document.getElementById('confirmNo').addEventListener('click', fecharConfirmClear);
-        document.getElementById('confirmModal').addEventListener('click', e => { if (e.target === document.getElementById('confirmModal')) fecharConfirmClear(); });
+        document.getElementById('confirmModal').addEventListener('click', e=>{if(e.target===document.getElementById('confirmModal'))fecharConfirmClear();});
         document.getElementById('diariasInput').addEventListener('input', calcularTotalAutomatico);
         document.getElementById('taxasInput').addEventListener('input', calcularTotalAutomatico);
         document.getElementById('descontosInput').addEventListener('input', calcularTotalAutomatico);
-        document.getElementById('usuarioSelect').addEventListener('change', function() { carregarDadosUsuario(this.value); });
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                const activeModal = document.querySelector('.modal-overlay.active');
-                if (activeModal) { activeModal.classList.remove('active'); return; }
-                if (loggedUser) { logout(); }
+        document.getElementById('usuarioSelect').addEventListener('change', function(){carregarDadosUsuario(this.value);});
+        document.addEventListener('keydown', e=>{
+            if(e.key==='Escape'){
+                const active=document.querySelector('.modal-overlay.active');
+                if(active){active.classList.remove('active');return;}
+                if(loggedUser) logout();
             }
         });
-        // ... demais listeners de modais e botões (omitidos por brevidade, mas mantidos do código anterior)
-        // Garantir que os listeners de fechamento e abertura estejam presentes
+        document.getElementById('itemLiberarAcesso').addEventListener('click', ()=>document.getElementById('liberarAcessoModal').classList.add('active'));
+        document.getElementById('saveHorariosBtn').addEventListener('click', ()=>{
+            const lib=document.getElementById('dataHoraLiberacao').value, bloq=document.getElementById('dataHoraBloqueio').value;
+            liberarAcessoRef.set({liberacao:lib,bloqueio:bloq});
+            document.getElementById('horariosMsg').textContent='✅ Salvo!'; document.getElementById('horariosMsg').style.color='#00a859';
+            setTimeout(()=>{document.getElementById('horariosMsg').textContent='';},3000);
+        });
+        document.getElementById('importLiberarUsuariosBtn').addEventListener('click', importarUsuariosLiberados);
+        document.getElementById('clearLiberadosBtn').addEventListener('click', limparUsuariosLiberados);
+        document.getElementById('closeLiberarAcessoModal').addEventListener('click', ()=>document.getElementById('liberarAcessoModal').classList.remove('active'));
+        document.getElementById('itemDiasRodados').addEventListener('click', ()=>{document.getElementById('calendarModal').classList.add('active');renderCalendar();});
+        document.getElementById('prevMonth').addEventListener('click', ()=>{currentDate.setMonth(currentDate.getMonth()-1);renderCalendar();});
+        document.getElementById('nextMonth').addEventListener('click', ()=>{currentDate.setMonth(currentDate.getMonth()+1);renderCalendar();});
+        document.getElementById('closeCalendarModal').addEventListener('click', ()=>document.getElementById('calendarModal').classList.remove('active'));
+        document.getElementById('itemDiariasTaxas').addEventListener('click', ()=>{document.getElementById('taxesModal').classList.add('active');configurarCamposTaxas();if(!loggedUser.isAdmin)iniciarListenerUsuarioLogado();});
+        document.getElementById('saveTaxesBtn').addEventListener('click', ()=>{
+            if(!loggedUser||!loggedUser.isAdmin) return;
+            const d=parseFloat(document.getElementById('diariasInput').value)||0, t=parseFloat(document.getElementById('taxasInput').value)||0, desc=parseFloat(document.getElementById('descontosInput').value)||0;
+            if(usuarioSelecionadoAtual){
+                taxasPorUsuarioRef.child(usuarioSelecionadoAtual).update({diarias:d,taxas:t,descontos:desc});
+                document.getElementById('taxesInfo').textContent=`✅ Salvo para ${usuarioSelecionadoAtual}`;
+            }else{
+                taxasConfigRef.set({diarias:d,taxas:t,descontos:desc});
+                document.getElementById('taxesInfo').textContent='✅ Salvo globalmente';
+            }
+            document.getElementById('taxesInfo').style.color='#00a859';
+        });
+        document.getElementById('closeTaxesModal').addEventListener('click', ()=>{document.getElementById('taxesModal').classList.remove('active');usuarioSelecionadoAtual='';document.getElementById('usuarioSelect').value='';document.getElementById('taxesInfo').textContent='';});
+        document.getElementById('itemTabelaBairros').addEventListener('click', ()=>{document.getElementById('bairrosModal').classList.add('active');renderBairrosTable();});
+        document.getElementById('addBairroBtn').addEventListener('click', adicionarBairro);
+        document.getElementById('importBairrosBtn').addEventListener('click', importarBairros);
+        document.getElementById('closeBairrosModal').addEventListener('click', ()=>document.getElementById('bairrosModal').classList.remove('active'));
+        document.getElementById('itemComandas').addEventListener('click', ()=>{document.getElementById('comandasModal').classList.add('active');renderComandas();});
+        document.getElementById('importComandasTxtBtn').addEventListener('click', importarComandasTxt);
+        document.getElementById('clearComandasBtn').addEventListener('click', limparComandas);
+        document.getElementById('closeComandasModal').addEventListener('click', ()=>document.getElementById('comandasModal').classList.remove('active'));
+        document.getElementById('itemCadastroEntregadores').addEventListener('click', ()=>{document.getElementById('entregadoresModal').classList.add('active');renderEntregadoresLista();});
+        document.getElementById('addEntregadorBtn').addEventListener('click', realizarCadastroEntregador);
+        document.getElementById('closeEntregadoresModal').addEventListener('click', ()=>document.getElementById('entregadoresModal').classList.remove('active'));
+        document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('active');}));
 
-        // Inicialização e animação de partículas (mantida igual)
-        let progress = 0;
-        const loadingInterval = setInterval(() => {
-            progress += Math.floor(Math.random()*8)+2;
-            if (progress >= 100) { progress = 100; clearInterval(loadingInterval); document.getElementById('loaderBar').style.width = '100%'; document.getElementById('loadingPercent').textContent = '100%';
-                setTimeout(() => { document.getElementById('loadingScreen').classList.add('hidden'); document.getElementById('loginScreen').classList.remove('hidden'); document.getElementById('usernameInput').focus(); }, 600); }
-            else { document.getElementById('loaderBar').style.width = progress+'%'; document.getElementById('loadingPercent').textContent = progress+'%'; }
-        }, 100);
-        const canvas = document.getElementById('particlesCanvas'), ctx = canvas.getContext('2d');
-        let particles = [];
-        function resize() { canvas.width = innerWidth; canvas.height = innerHeight; }
-        resize(); window.addEventListener('resize', resize);
-        class Particle {
-            constructor() { this.reset(); }
-            reset() { this.x = Math.random()*canvas.width; this.y = Math.random()*canvas.height; this.vx = (Math.random()-0.5)*0.4; this.vy = (Math.random()-0.5)*0.4; this.size = Math.random()*1.8+0.4; this.opacity = Math.random()*0.6+0.2; }
-            update() { this.x += this.vx; this.y += this.vy; if (this.x<0) this.x=canvas.width; if (this.x>canvas.width) this.x=0; if (this.y<0) this.y=canvas.height; if (this.y>canvas.height) this.y=0; }
-            draw() { ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fillStyle = `rgba(0,168,89,${this.opacity})`; ctx.fill(); }
-        }
-        for (let i=0;i<80;i++) particles.push(new Particle());
-        function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
+        // Loading animation
+        let progress=0;
+        const loadingInterval=setInterval(()=>{
+            progress+=Math.floor(Math.random()*8)+2;
+            if(progress>=100){progress=100;clearInterval(loadingInterval);document.getElementById('loaderBar').style.width='100%';document.getElementById('loadingPercent').textContent='100%';
+                setTimeout(()=>{document.getElementById('loadingScreen').classList.add('hidden');document.getElementById('loginScreen').classList.remove('hidden');document.getElementById('usernameInput').focus();},600);}
+            else{document.getElementById('loaderBar').style.width=progress+'%';document.getElementById('loadingPercent').textContent=progress+'%';}
+        },100);
+
+        // Particles
+        const canvas=document.getElementById('particlesCanvas'),ctx=canvas.getContext('2d');
+        let particles=[];
+        function resize(){canvas.width=innerWidth;canvas.height=innerHeight;}
+        resize();window.addEventListener('resize',resize);
+        class Particle{constructor(){this.reset();}reset(){this.x=Math.random()*canvas.width;this.y=Math.random()*canvas.height;this.vx=(Math.random()-0.5)*0.4;this.vy=(Math.random()-0.5)*0.4;this.size=Math.random()*1.8+0.4;this.opacity=Math.random()*0.6+0.2;}update(){this.x+=this.vx;this.y+=this.vy;if(this.x<0)this.x=canvas.width;if(this.x>canvas.width)this.x=0;if(this.y<0)this.y=canvas.height;if(this.y>canvas.height)this.y=0;}draw(){ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);ctx.fillStyle=`rgba(0,168,89,${this.opacity})`;ctx.fill();}}
+        for(let i=0;i<80;i++) particles.push(new Particle());
+        function animate(){ctx.clearRect(0,0,canvas.width,canvas.height);particles.forEach(p=>{p.update();p.draw();});requestAnimationFrame(animate);}
         animate();
     </script>
 </body>
