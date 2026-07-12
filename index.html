@@ -10,6 +10,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
 
     <style>
+        /* ... (mesmo CSS, sem alterações) ... */
         :root {
             --bg-primary: #0f1a14;
             --bg-secondary: #142018;
@@ -35,11 +36,7 @@
             --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             background: var(--bg-primary);
@@ -87,9 +84,7 @@
             border: none;
             color: var(--text-primary);
         }
-        .lock-icon:hover {
-            transform: scale(1.1);
-        }
+        .lock-icon:hover { transform: scale(1.1); }
         .lock-popover {
             position: absolute;
             top: 100%;
@@ -104,9 +99,7 @@
             box-shadow: var(--shadow-card);
             min-width: 220px;
         }
-        .lock-popover.active {
-            display: block;
-        }
+        .lock-popover.active { display: block; }
         .lock-popover input {
             width: 100%;
             padding: 6px 8px;
@@ -119,9 +112,7 @@
             outline: none;
             margin-bottom: 8px;
         }
-        .lock-popover input:focus {
-            border-color: var(--accent);
-        }
+        .lock-popover input:focus { border-color: var(--accent); }
         .lock-popover .btn-sm {
             padding: 6px 12px;
             font-size: 0.78rem;
@@ -133,9 +124,7 @@
             color: #0a1a10;
             width: 100%;
         }
-        .lock-popover .btn-sm:hover {
-            background: #3ddb7e;
-        }
+        .lock-popover .btn-sm:hover { background: #3ddb7e; }
         .logout-link {
             display: block;
             text-align: center;
@@ -144,9 +133,7 @@
             font-size: 0.7rem;
             cursor: pointer;
         }
-        .logout-link:hover {
-            color: var(--red-light);
-        }
+        .logout-link:hover { color: var(--red-light); }
 
         .container {
             width: 100%;
@@ -164,12 +151,7 @@
             gap: 20px;
             position: relative;
         }
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
+        .logo { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
         .logo .logo-icon {
             display: flex;
             align-items: center;
@@ -181,23 +163,9 @@
             box-shadow: 0 4px 12px var(--accent-glow);
             flex-shrink: 0;
         }
-        .logo .logo-icon svg {
-            width: 34px;
-            height: 34px;
-            fill: #fff;
-        }
-        .logo-text {
-            display: flex;
-            flex-direction: column;
-            margin-left: 4px;
-        }
-        .logo-main {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #ffffff;
-            letter-spacing: -0.5px;
-            line-height: 1;
-        }
+        .logo .logo-icon svg { width: 34px; height: 34px; fill: #fff; }
+        .logo-text { display: flex; flex-direction: column; margin-left: 4px; }
+        .logo-main { font-size: 2rem; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; line-height: 1; }
         .logo-sub {
             font-size: 0.8rem;
             font-weight: 600;
@@ -238,12 +206,7 @@
             background: var(--accent);
             box-shadow: 0 0 10px var(--accent-glow);
         }
-        .add-field {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+        .add-field { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         .input-add {
             padding: 10px 14px;
             border-radius: var(--radius-sm);
@@ -256,9 +219,7 @@
             min-width: 200px;
             flex: 1;
         }
-        .input-add::placeholder {
-            color: var(--text-muted);
-        }
+        .input-add::placeholder { color: var(--text-muted); }
         .input-add:focus {
             border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.12);
@@ -276,23 +237,10 @@
             transition: all var(--transition);
             font-family: var(--font-main);
         }
-        .btn-primary {
-            background: var(--accent);
-            color: #0a1a10;
-            box-shadow: var(--shadow-btn);
-        }
-        .btn-primary:hover {
-            background: #3ddb7e;
-            transform: translateY(-1px);
-        }
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-primary);
-        }
-        .btn-outline:hover {
-            border-color: var(--accent);
-        }
+        .btn-primary { background: var(--accent); color: #0a1a10; box-shadow: var(--shadow-btn); }
+        .btn-primary:hover { background: #3ddb7e; transform: translateY(-1px); }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-primary); }
+        .btn-outline:hover { border-color: var(--accent); }
         .btn-danger-text {
             background: transparent;
             border: 1px solid transparent;
@@ -302,10 +250,7 @@
             cursor: pointer;
             border-radius: 5px;
         }
-        .btn-danger-text:hover {
-            color: var(--red-light);
-            background: rgba(231, 76, 60, 0.1);
-        }
+        .btn-danger-text:hover { color: var(--red-light); background: rgba(231, 76, 60, 0.1); }
         .btn-arrow {
             background: transparent;
             border: 1px solid transparent;
@@ -317,15 +262,8 @@
             transition: all 0.15s;
             line-height: 1;
         }
-        .btn-arrow:hover:not(:disabled) {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.08);
-            border-color: var(--border);
-        }
-        .btn-arrow:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
+        .btn-arrow:hover:not(:disabled) { color: #fff; background: rgba(255, 255, 255, 0.08); border-color: var(--border); }
+        .btn-arrow:disabled { opacity: 0.3; cursor: not-allowed; }
 
         .table-wrapper {
             overflow-x: auto;
@@ -333,12 +271,7 @@
             border: 1px solid var(--border);
             background: var(--bg-input);
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9rem;
-            min-width: 650px;
-        }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 650px; }
         table thead th {
             text-align: left;
             padding: 13px 16px;
@@ -357,21 +290,10 @@
             color: #ffffff;
             transition: background var(--transition);
         }
-        table tbody tr {
-            transition: background var(--transition);
-        }
-        table tbody tr:hover {
-            background: rgba(46, 204, 113, 0.04);
-        }
-        table tbody tr:last-child td {
-            border-bottom: none;
-        }
-        .col-numero {
-            width: 50px;
-            text-align: center;
-            font-weight: 600;
-            color: var(--accent-light);
-        }
+        table tbody tr { transition: background var(--transition); }
+        table tbody tr:hover { background: rgba(46, 204, 113, 0.04); }
+        table tbody tr:last-child td { border-bottom: none; }
+        .col-numero { width: 50px; text-align: center; font-weight: 600; color: var(--accent-light); }
         .col-horario {
             font-variant-numeric: tabular-nums;
             font-feature-settings: "tnum";
@@ -398,13 +320,8 @@
             transition: all 0.2s;
             user-select: none;
         }
-        .check-square:hover {
-            background: rgba(46, 204, 113, 0.15);
-            border-color: #3ddb7e;
-        }
-        .check-square:active {
-            transform: scale(0.95);
-        }
+        .check-square:hover { background: rgba(46, 204, 113, 0.15); border-color: #3ddb7e; }
+        .check-square:active { transform: scale(0.95); }
         .editable-cell {
             padding: 2px 4px;
             border-radius: 4px;
@@ -419,27 +336,15 @@
             display: inline-block;
             min-width: 80px;
         }
-        .editable-cell:hover {
-            border-color: #344a38;
-        }
+        .editable-cell:hover { border-color: #344a38; }
         .editable-cell:focus {
             border-color: var(--accent) !important;
             background: var(--bg-input);
             box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.12);
             color: #fff;
         }
-        .empty-row td {
-            text-align: center;
-            padding: 40px 16px;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-        .empty-icon {
-            font-size: 2.2rem;
-            display: block;
-            margin-bottom: 6px;
-            opacity: 0.6;
-        }
+        .empty-row td { text-align: center; padding: 40px 16px; color: var(--text-muted); font-size: 0.9rem; }
+        .empty-icon { font-size: 2.2rem; display: block; margin-bottom: 6px; opacity: 0.6; }
 
         .modal-overlay {
             display: none;
@@ -450,9 +355,7 @@
             align-items: center;
             justify-content: center;
         }
-        .modal-overlay.active {
-            display: flex;
-        }
+        .modal-overlay.active { display: flex; }
         .modal-content {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -472,25 +375,10 @@
             flex-wrap: wrap;
             gap: 10px;
         }
-        .modal-header h3 {
-            font-size: 1.1rem;
-        }
-        .modal-header-right {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .modal-close {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-        .modal-close:hover {
-            color: #fff;
-        }
+        .modal-header h3 { font-size: 1.1rem; }
+        .modal-header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .modal-close { background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; }
+        .modal-close:hover { color: #fff; }
         .btn-export {
             background: var(--accent);
             color: #0a1a10;
@@ -504,9 +392,7 @@
             align-items: center;
             gap: 6px;
         }
-        .btn-export:hover {
-            background: #3ddb7e;
-        }
+        .btn-export:hover { background: #3ddb7e; }
         .filter-date {
             padding: 5px 8px;
             border-radius: 5px;
@@ -518,21 +404,10 @@
             outline: none;
             width: 130px;
         }
-        .filter-date:focus {
-            border-color: var(--accent);
-        }
+        .filter-date:focus { border-color: var(--accent); }
 
-        .footer {
-            text-align: center;
-            margin-top: 32px;
-            color: var(--text-muted);
-            font-size: 0.75rem;
-            opacity: 0.8;
-        }
-        .footer span {
-            color: var(--accent);
-            font-weight: 600;
-        }
+        .footer { text-align: center; margin-top: 32px; color: var(--text-muted); font-size: 0.75rem; opacity: 0.8; }
+        .footer span { color: var(--accent); font-weight: 600; }
 
         .toast {
             position: fixed;
@@ -551,40 +426,18 @@
             transition: transform 0.35s ease;
             pointer-events: none;
         }
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-        }
-        .toast.success {
-            border-color: rgba(46, 204, 113, 0.5);
-        }
-        .toast.info {
-            border-color: var(--accent);
-        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.success { border-color: rgba(46, 204, 113, 0.5); }
+        .toast.info { border-color: var(--accent); }
 
         @media (max-width: 768px) {
-            .container {
-                padding: 16px 12px 30px;
-            }
-            .main-card {
-                padding: 18px 14px;
-            }
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .add-field {
-                width: 100%;
-            }
-            .input-add {
-                min-width: auto;
-                width: 100%;
-            }
-            .lock-container {
-                margin-left: 0;
-            }
-            .filter-date {
-                width: 100%;
-            }
+            .container { padding: 16px 12px 30px; }
+            .main-card { padding: 18px 14px; }
+            .header { flex-direction: column; align-items: flex-start; }
+            .add-field { width: 100%; }
+            .input-add { min-width: auto; width: 100%; }
+            .lock-container { margin-left: 0; }
+            .filter-date { width: 100%; }
         }
     </style>
 </head>
@@ -644,7 +497,7 @@
                             <th>#</th>
                             <th>Nome</th>
                             <th>Horário de Registro</th>
-                            <th>Saída</th>
+                            <th id="th-saida">Saída</th>
                             <th id="th-acoes" style="display:none;">Ações</th>
                         </tr>
                     </thead>
@@ -726,7 +579,7 @@
     <div class="modal-overlay" id="modalPrimeiraVez">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>🕒 Registro da primeira adição</h3>   <!-- Título ajustado -->
+                <h3>🕒 Registro da primeira adição</h3>
                 <div class="modal-header-right">
                     <input type="date" id="filtroDataPrimeira" class="filter-date" title="Filtrar por data">
                     <button class="btn-export" id="btnExportarPrimeira" title="Exportar para Excel">📥 Exportar Excel</button>
@@ -793,6 +646,7 @@
             const btnResetGeral = document.getElementById('btnResetGeral');
             const btnLimparLista = document.getElementById('btnLimparLista');
             const btnSairVisivel = document.getElementById('btnSairVisivel');
+            const thSaida = document.getElementById('th-saida');
             const thAcoes = document.getElementById('th-acoes');
 
             // Modal histórico
@@ -899,6 +753,7 @@
                     lockIcon.title = 'Admin logado';
                     btnLockLogout.style.display = 'block';
                     lockPopover.classList.remove('active');
+                    thSaida.style.display = 'table-cell';
                     thAcoes.style.display = 'table-cell';
                     btnHistorico.style.display = 'inline-flex';
                     btnMotoboys.style.display = 'inline-flex';
@@ -911,6 +766,7 @@
                     lockIcon.textContent = '🔒';
                     lockIcon.title = 'Acesso restrito';
                     btnLockLogout.style.display = 'none';
+                    thSaida.style.display = 'none';
                     thAcoes.style.display = 'none';
                     btnHistorico.style.display = 'none';
                     btnMotoboys.style.display = 'none';
@@ -923,8 +779,8 @@
             }
 
             function renderizarTabela() {
+                const colspan = adminLogado ? 5 : 4; // Se admin, 5 colunas (#, Nome, Horário, Saída, Ações); senão 4
                 if (registros.length === 0) {
-                    const colspan = adminLogado ? 5 : 4;
                     tbody.innerHTML = `<tr class="empty-row"><td colspan="${colspan}"><span class="empty-icon">🛵</span>Nenhum motoboy registrado.</td></tr>`;
                     return;
                 }
@@ -937,19 +793,25 @@
                     const horaCell = adminLogado ?
                         `<span class="editable-cell" contenteditable="true" data-field="horario" data-index="${index}">${escaparHtml(reg.horario)}</span>` :
                         escaparHtml(reg.horario);
+
+                    // Coluna Saída (check) – só aparece para admin
+                    const saidaCell = adminLogado ?
+                        `<td class="col-check">
+                            <div class="check-square" data-check-index="${index}"></div>
+                        </td>` : '';
+
                     const acoesCell = adminLogado ?
                         `<td style="white-space: nowrap;">
                             <button class="btn-arrow" data-mover-cima="${index}" title="Mover para cima" ${index === 0 ? 'disabled' : ''}>▲</button>
                             <button class="btn-arrow" data-mover-baixo="${index}" title="Mover para baixo" ${index === registros.length - 1 ? 'disabled' : ''}>▼</button>
                             <button class="btn-danger-text" data-remover="${index}" title="Remover permanentemente">🗑️</button>
                          </td>` : '';
+
                     return `<tr data-index="${index}">
                         <td class="col-numero">${index + 1}</td>
                         <td>${nomeCell}</td>
                         <td class="col-horario">${horaCell}</td>
-                        <td class="col-check">
-                            <div class="check-square" data-check-index="${index}"></div>
-                        </td>
+                        ${saidaCell}
                         ${acoesCell}
                     </tr>`;
                 }).join('');
@@ -1066,7 +928,6 @@
                 mostrarToast('↕️ Ordem alterada.', 'info');
             }
 
-            // ⚡ FUNÇÃO MODIFICADA: agora evita repetição no "primeira vez"
             function adicionarRegistro(nome) {
                 const agora = new Date();
                 const horario = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
@@ -1081,7 +942,6 @@
                     }
                 }
 
-                // Verifica se o nome já está na lista "primeira vez"
                 const jaRegistrado = primeiros.some(p => p.nome.toLowerCase() === nomeLower);
                 if (!jaRegistrado) {
                     primeiros.push({ nome: nomeTrim, timestamp: Date.now() });
@@ -1129,6 +989,11 @@
             }
 
             function removerComCheck(index) {
+                // Só executa se for admin (redundância de segurança)
+                if (!adminLogado) {
+                    mostrarToast('🔒 Apenas o administrador pode remover um motoboy.', 'info');
+                    return;
+                }
                 if (index < 0 || index >= registros.length) return;
                 const reg = registros[index];
                 checkouts.push({ nome: reg.nome, timestamp: Date.now() });
@@ -1255,6 +1120,11 @@
                 const checkSquare = e.target.closest('.check-square');
                 if (checkSquare) {
                     e.stopPropagation();
+                    // Apenas admin pode usar o check
+                    if (!adminLogado) {
+                        mostrarToast('🔒 Apenas o administrador pode remover um motoboy.', 'info');
+                        return;
+                    }
                     const index = parseInt(checkSquare.getAttribute('data-check-index'), 10);
                     removerComCheck(index);
                     return;
